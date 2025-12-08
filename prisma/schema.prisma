@@ -14,8 +14,20 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String?
-  createdAt DateTime @default(now())
+  id            String      @id @default(uuid())
+  name          String
+  email         String     @unique
+  password      String   
+
+  role          Role      @default(USER)
+  resetToken    String?
+  resetTokenExpires DateTime?
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }
