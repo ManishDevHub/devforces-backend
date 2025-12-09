@@ -4,13 +4,9 @@ import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 import { Role } from "../generated/prisma/enums";
 
-
-
-
-
 const JWT_SECRET = process.env.JWT_SECRET || "sdddsdsgsgsgs";
-const generateToken = (id: string) => {
-  return jwt.sign({ id }, JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (id: string, role:string) => {
+  return jwt.sign({ id , role }, JWT_SECRET, { expiresIn: "7d" });
 };
 
  export const register =  async (req: Request, res: Response) =>{
@@ -66,7 +62,7 @@ const hashedPassword = await bcrypt.hash(password, 12);
       return res.status(400).json({ message: "Invalid email or Password"})
     }
 
-const token = generateToken(user.id );
+const token = generateToken(user.id , user.role);
 res.status(200).json({
   message: " User Login successfully",
    token ,
@@ -74,6 +70,7 @@ res.status(200).json({
     name: user.name,
     id : user.id,
     email: user.email,
+    role: user.role
 
     
   }

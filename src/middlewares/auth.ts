@@ -7,7 +7,7 @@ import { de } from "zod/v4/locales";
 
 const JWT_SECRET = process.env.JWT_SECRET || "sdklfhdfjdsfd"
 
-interface AuthRequest extends Request {
+ export interface AuthRequest extends Request {
     user?: any
 }
 
