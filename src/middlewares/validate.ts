@@ -9,11 +9,13 @@ export const validate = (schema: ZodSchema) =>
         const result = schema.safeParse(req.body);
         if(!result.success){
             return res.status(400).json({
-                message: "Validation Failed"
-            }) 
+                message: "Validation Failed",
+                errors: result.error.flatten()
+            })} 
+            
             req.body  = result.data
             next();
-        }
+        
     }catch(err : unknown){
         
             console.log("Validaton middleware error", error)
