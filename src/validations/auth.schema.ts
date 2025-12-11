@@ -20,5 +20,5 @@ export const forgotPasswordSchema = z.object({
 })
 
 export const resetPasswordSchema = z.object({
-    newPassword: z.string().min(6, "Password is to small").max(20, "Password is to long")
+    password: z.string().min(6, "Password is to small").max(20, "Password is to long")
 })
