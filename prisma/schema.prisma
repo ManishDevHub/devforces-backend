@@ -1,11 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -13,29 +7,201 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id            String      @id @default(uuid())
-  name          String
-  email         String     @unique
-  password      String   
-
-  role          Role      @default(USER)
-  resetToken    String?
-  resetTokenExpires DateTime?
-  otps          OTP[]
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-}
+//////////////////// ENUMS ////////////////////
 
 enum Role {
   USER
   ADMIN
 }
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum Status {
+  ACCEPTED
+  WRONG_ANSWER
+  RUNTIME_ERROR
+  TIME_LIMIT
+  COMPILATION_ERROR
+}
+
+enum ContestType {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum ContestStatus {
+  UPCOMING
+  LIVE
+  COMPLETED
+}
+
+//////////////////// USER ////////////////////
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+
+  avatar String?
+  bio    String?
+
+  resetToken        String?
+  resetTokenExpires DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submissions        Submission[]
+  contestSubmissions ContestSubmission[]
+  activity           Activity[]
+  chats              ChatMessage[]
+  otps               OTP[]
+
+  problemsCreated      Problem[]             @relation("ProblemCreator")
+  contestsCreated      Contest[]             @relation("ContestCreator")
+  contestRegistrations ContestRegistration[]
+}
+
+//////////////////// OTP ////////////////////
+
 model OTP {
-  id         String    @id @default(uuid())
-  otp        String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  userId     String
-  user       User     @relation(fields: [userId] , references: [id])
+  id        String   @id @default(uuid())
+  otp       String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+}
+
+//////////////////// PROBLEM ////////////////////
+
+model Problem {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  difficulty  Difficulty
+  examples    Json?
+  constraints String?
+  createdAt   DateTime   @default(now())
+
+  createdBy String
+  creator   User   @relation("ProblemCreator", fields: [createdBy], references: [id])
+
+  submissions        Submission[]
+  contests           ContestProblem[]
+  contestSubmissions ContestSubmission[]
+}
+
+//////////////////// PRACTICE SUBMISSION ////////////////////
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  problemId   Int
+  code        String
+  language    String
+  status      Status
+  executionMs Int?
+  createdAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+//////////////////// ACTIVITY (CALENDAR) ////////////////////
+
+model Activity {
+  id     Int      @id @default(autoincrement())
+  userId String
+  date   DateTime
+  count  Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+//////////////////// CONTEST ////////////////////
+
+model Contest {
+  id        Int           @id @default(autoincrement())
+  title     String
+  type      ContestType
+  startTime DateTime
+  endTime   DateTime
+  status    ContestStatus
+  createdAt DateTime      @default(now())
+
+  createdBy String
+  creator   User   @relation("ContestCreator", fields: [createdBy], references: [id])
+
+  problems      ContestProblem[]
+  registrations ContestRegistration[]
+  submissions   ContestSubmission[]
+}
+
+//////////////////// CONTEST ↔ PROBLEM ////////////////////
+
+model ContestProblem {
+  id        Int @id @default(autoincrement())
+  contestId Int
+  problemId Int
+
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([contestId, problemId])
+}
+
+//////////////////// CONTEST REGISTRATION ////////////////////
+
+model ContestRegistration {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  contestId Int
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
+}
+
+//////////////////// CONTEST SUBMISSION ////////////////////
+
+model ContestSubmission {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  contestId   Int
+  problemId   Int
+  code        String
+  language    String
+  status      Status
+  executionMs Int?
+  createdAt   DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+//////////////////// CHAT ////////////////////
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
