@@ -12,7 +12,7 @@ import { resetPassword } from "../controllers/resetPassword.controller";
 
 
 
-const router = Router();
+ export const router = Router();
 router.post('/register' , validate(registerSchema), register);
 router.post('/login' , validate(loginSchema), login)
 router.post('/forgot-password',validate(forgotPasswordSchema) , forgotPassword)

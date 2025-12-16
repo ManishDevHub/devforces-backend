@@ -17,7 +17,9 @@ app.use(cors({
 app.use(express.json());
 
 interface AuthRequest extends Request{
-    user?: any
+     user?: any
+    
+
 }
 
 app.use("/api/user", router);

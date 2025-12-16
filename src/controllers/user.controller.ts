@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import  prisma   from '../config/prisma'
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
-import { Role } from "../generated/prisma/enums";
+import { any, ZodAny } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET || "sdddsdsgsgsgs";
 const generateToken = (id: string, role:string) => {
@@ -81,6 +81,12 @@ res.status(200).json({
     return res.status(500).json({ message:"Server error"})
   }
  }
+
+
+
+
+
+
 
 
 
