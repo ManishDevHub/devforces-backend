@@ -49,8 +49,9 @@ model User {
   password String
   role     Role   @default(USER)
 
-  avatar String?
-  bio    String?
+  avatar           String?
+  avatarPublicId   String?
+  bio              String?
 
   resetToken        String?
   resetTokenExpires DateTime?

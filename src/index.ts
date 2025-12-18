@@ -18,8 +18,7 @@ app.use(express.json());
 
 interface AuthRequest extends Request{
      user?: any
-    
-
+  
 }
 
 app.use("/api/user", router);
