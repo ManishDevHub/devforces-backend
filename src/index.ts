@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import router from "./routes/user.route";
+import problemRoute from "./routes/problem.route";
 
 const PORT = process.env.PORT || 5000
 
@@ -22,6 +23,7 @@ interface AuthRequest extends Request{
 }
 
 app.use("/api/user", router);
+app.use('/api/user', problemRoute);
 
 
 

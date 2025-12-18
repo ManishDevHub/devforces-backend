@@ -10,6 +10,7 @@ import { AuthRequest } from "../middlewares/auth";
 import { forgotPassword } from "../controllers/forgotPassword.controller";
 import { resetPassword } from "../controllers/resetPassword.controller";
 import upload from "../middlewares/upload";
+import { getAllProblems } from "../controllers/problem.controller";
 
 
 
@@ -18,6 +19,7 @@ router.post('/register' , validate(registerSchema), register);
 router.post('/login' , validate(loginSchema), login)
 router.post('/forgot-password',validate(forgotPasswordSchema) , forgotPassword)
 router.post("/reset-passwordPage/:token", validate(resetPasswordSchema), resetPassword);
+
 
 router.get("/profile", auth, isUser, getProfile);
 router.put("/updateProfile", auth , isUser,upload.single("avatar"), updateProfile);
