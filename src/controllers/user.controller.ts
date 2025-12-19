@@ -21,7 +21,7 @@ const existingUser = await prisma.user.findUnique({
 
 if(existingUser){
   return res.status(400).json({
-    message: "User alrady exists"
+    message: " Email alrady exists"
   })
 }
 
@@ -38,7 +38,7 @@ const hashedPassword = await bcrypt.hash(password, 12);
       }
     })
     res.status(200).json({
-      message: "User Register Successfully"  , user:{
+      message: " Register Successfully"  , user:{
         id: user.id,
         email: user.email,
       },
@@ -67,7 +67,7 @@ const hashedPassword = await bcrypt.hash(password, 12);
 
 const token = generateToken(user.id , user.role);
 res.status(200).json({
-  message: " User Login successfully",
+  message: " Login successfully",
    token ,
   user: {
     name: user.name,

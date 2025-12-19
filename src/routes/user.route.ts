@@ -26,9 +26,7 @@ router.put("/updateProfile", auth , isUser,upload.single("avatar"), updateProfil
   
 
 
-router.get("/admin/dashboard", auth, isAdmin, (req: AuthRequest, res: Response) => {
-  res.json({ message: "Admin dashboard access", user: req.user });
-});
+
 
 
 
