@@ -2,10 +2,9 @@
 
 import { Request, Response } from "express";
 import prisma from "../../config/prisma";
-import { date } from "zod";
+
 import { AuthRequest } from "../../middlewares/auth";
-import { de } from "zod/v4/locales";
-import { deprecate } from "util";
+
 
 export const createProblem = async ( req: AuthRequest , res: Response) => {
     try{
@@ -33,11 +32,14 @@ export const createProblem = async ( req: AuthRequest , res: Response) => {
     }
 }
 
-export const getAllProblem = async ( req: Request, res: Response) => {
+export const getAllProblem = async ( req: AuthRequest, res: Response) => {
 
     try {
 
+        const adminId = req.user.id;
+
         const problems = await prisma.problem.findMany({
+            where:{ createdBy: adminId},
             orderBy: { createdAt: "desc"}
         })
 
@@ -51,12 +53,15 @@ export const getAllProblem = async ( req: Request, res: Response) => {
     }
 }
 
-export const getProblemById = async (req: Request, res: Response) =>{
+export const getProblemById = async (req: AuthRequest, res: Response) =>{
     try{
         const id = Number( req.params.id);
+        const adminId = req.user.id;
 
         const problem = await prisma.problem.findUnique({
-            where: { id }
+            where: { id,
+                createdBy: adminId,
+             }
         })
         if( !problem){
             return res.status(400).json({ message: "problem not found "})
@@ -98,11 +103,14 @@ export const updateProblem = async ( req: AuthRequest , res: Response) =>{
     }
 }
 
-export const deleteById = async ( req: Request , res: Response) =>{
+export const deleteById = async ( req: AuthRequest , res: Response) =>{
     try{
         const id = Number( req.params.id);
+        const adminId = req.user.id;
         const deProblem = await prisma.problem.delete({
-            where: {id}
+            where: {id,
+                createdBy: adminId,
+            }
         })
        
         res.json("Problem deleted successfully");
