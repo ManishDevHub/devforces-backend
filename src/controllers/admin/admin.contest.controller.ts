@@ -148,27 +148,61 @@ export const getById = async ( req: AuthRequest , res: Response) =>{
 }
 
 
-export const addProblemToContest = async (req: Request, res:Response) =>{
-    try{
-        const constestId = Number(req.body.constestId);
-        const { problemIds} = req.body;
 
-        const mapping = problemIds.map((problemId: Number) => ({
-            constestId,
-            problemId,
-        }))
 
-        const addProblem = await prisma.contestProblem.createMany({
-            data: mapping,
-            skipDuplicates: true,
-        })
+export const addProblemsToContest = async (req: Request, res: Response) => {
+  try {
+    const contestId = Number(req.params.contestId);
+    const { problemIds } = req.body;
 
-        if(!addProblem){
-            res.status(404).json({ meassge: " Problem not added"})
-        }
-        res.json(" Problem add to contest");
-
-    }catch(error){
-        res.status(500).json({ message: " Failed to add problems in contest"});
+    if (!contestId) {
+      return res.status(400).json({ message: "Invalid contestId" });
     }
-}
+
+    
+
+    
+    const contest = await prisma.contest.findUnique({
+      where: { id: contestId },
+    });
+
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
+    }
+
+    
+    const problems = await prisma.problem.findMany({
+      where: {
+        id: { in: problemIds },
+      },
+      select: { id: true },
+    });
+
+    if (problems.length !== problemIds.length) {
+      return res.status(400).json({
+        message: "One or more problemIds are invalid",
+      });
+    }
+
+    
+    const mappings = problemIds.map((problemId: number) => ({
+      contestId,
+      problemId,
+    }));
+
+    await prisma.contestProblem.createMany({
+      data: mappings,
+      skipDuplicates: true,
+    });
+
+    return res.json({
+      message: "Problems added to contest successfully",
+    });
+
+  } catch (error) {
+    console.error("ADD PROBLEM ERROR:", error);
+    return res.status(500).json({
+      message: "Failed to add problem in contest",
+    });
+  }
+};

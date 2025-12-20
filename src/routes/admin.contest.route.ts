@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth";
 import { isAdmin } from "../middlewares/admin";
-import { addProblemToContest, createContest, deleteAllContest, deleteConById, getAllConByAdmin, getById, updateContest } from "../controllers/admin/admin.contest.controller";
+import {  addProblemsToContest, createContest, deleteAllContest, deleteConById, getAllConByAdmin, getById, updateContest } from "../controllers/admin/admin.contest.controller";
 
 
 
@@ -14,6 +14,6 @@ adminContestRoute.delete('/deleteContest/:id', auth , isAdmin, deleteConById);
 adminContestRoute.delete('/deleteAllContest' , auth , isAdmin , deleteAllContest);
 adminContestRoute.get('/getAllContestByadmin', auth , isAdmin , getAllConByAdmin);
 adminContestRoute.get('/getContestByIdByAdmin/:id' , auth , isAdmin , getById);
-adminContestRoute.post("/contest/:contestId/problems" , auth ,isAdmin , addProblemToContest);
+adminContestRoute.post("/contest/:contestId/problems" , auth ,isAdmin , addProblemsToContest);
 
 export default adminContestRoute;
