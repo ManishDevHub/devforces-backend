@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import  prisma   from '../config/prisma'
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
-import { any, email, string, ZodAny } from "zod";
+import { any, email, string, templateLiteral, ZodAny } from "zod";
 import { auth, AuthRequest  } from "../middlewares/auth";
 import { uploadCloToBinary } from "../utils/cloudinaryUpload";
 import cloudinary from "../config/cloudinary";
@@ -173,3 +173,31 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ message: "Failed to update profile" });
   }
 };
+
+
+export const getUserCelender = async ( req: AuthRequest, res: Response) =>{
+
+  try{
+
+    const userId = req.user.id;
+
+    const activity = await prisma.activity.findMany({
+      where: { userId},
+      orderBy:{ date: "asc"},
+      select:{
+        date: true,
+        count: true,
+      }
+    })
+
+    if(!activity){
+      return res.status(404).json({ message: " Something went wrong"});
+    }
+
+    res.json(activity);
+
+  }catch( error) {
+    console.error(" Celender error", error)
+     res.status(500).json({ message: " Server error"});
+  }
+}
