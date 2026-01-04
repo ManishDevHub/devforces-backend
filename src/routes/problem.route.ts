@@ -10,6 +10,6 @@ problemRoute.get('/problems', auth , isUser , getAllProblems );
 problemRoute.get('/:problemId', auth, isUser, getSingleProblem);
 problemRoute.get('/problem/solved' , auth, isUser, getSolveProblem);
 problemRoute.get('/problem/unsolved' , auth, isUser, getUnsolvedProblem);
-problemRoute.get('/search', auth , searchProblem);
+problemRoute.get('/search', auth ,isUser, searchProblem);
 
 export default problemRoute;

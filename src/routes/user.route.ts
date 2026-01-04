@@ -1,5 +1,5 @@
 import { Router , Response} from "express";
-import { getProfile, getUserCelender, login, register, updateProfile } from "../controllers/user.controller"
+import { getProfile, getUserCalendar,  login, register, updateProfile } from "../controllers/user.controller"
 import { validate } from "../middlewares/validate";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "../validations/auth.schema";
 import { auth} from '../middlewares/auth'
@@ -23,7 +23,7 @@ router.post("/reset-passwordPage/:token", validate(resetPasswordSchema), resetPa
 
 router.get("/profile", auth, isUser, getProfile);
 router.put("/updateProfile", auth , isUser,upload.single("avatar"), updateProfile);
-router.get('/celender', auth , getUserCelender);
+router.get('/celender', auth , getUserCalendar);
   
 
 

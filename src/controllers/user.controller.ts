@@ -175,7 +175,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 };
 
 
-export const getUserCelender = async ( req: AuthRequest, res: Response) =>{
+export const getUserCalendar = async ( req: AuthRequest, res: Response) =>{
 
   try{
 
