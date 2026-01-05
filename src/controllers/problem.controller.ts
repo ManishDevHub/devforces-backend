@@ -155,3 +155,52 @@ export const searchProblem = async (req: Request, res: Response) =>{
         res.status(500).json({message:  "Failed to Search Problem"})
     }
 }
+
+
+
+export const submissionProblem = async (req: AuthRequest, res: Response) =>{
+
+    try{
+         const userId = req.user.id;
+    const problemId = Number(req.params.probemId);
+
+    const { code , language} = req.body;
+
+    if(! code || ! language){
+        res.status(403).json({ message: " code and language required"});
+
+    }
+
+    const problem = await prisma.problem.findUnique({
+        where: {id : problemId}
+    })
+
+    if( !problem ){
+        return res.status(400).json({ message: " Problem not found"});
+
+    }
+
+    const submission = await prisma.submission.create({
+        data: {
+            userId,
+            problemId,
+            code,
+            language,
+            status:"PENDING"
+        }
+    
+    })
+
+    res.status(201).json({
+        message: " Problem submission resived",
+        submissionId : submission.id
+    })
+
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ message: "submission failed"})
+    }
+
+   
+}

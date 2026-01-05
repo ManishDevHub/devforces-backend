@@ -21,11 +21,14 @@ enum Difficulty {
 }
 
 enum Status {
+  PENDING
+  RUNNING
   ACCEPTED
   WRONG_ANSWER
   RUNTIME_ERROR
   TIME_LIMIT
   COMPILATION_ERROR
+  
 }
 
 enum ContestType {
@@ -111,7 +114,7 @@ model Submission {
   problemId   Int
   code        String
   language    String
-  status      Status
+  status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())
 
@@ -186,7 +189,7 @@ model ContestSubmission {
   problemId   Int
   code        String
   language    String
-  status      Status
+  status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())
 
