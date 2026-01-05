@@ -167,3 +167,63 @@ export const joinContest = async ( req: AuthRequest,  res: Response) => {
         res.status(500).json({message: " Failed to joinContest"});
     }
 }
+
+
+export const submissionContestProblem = async ( req:AuthRequest , res: Response) =>{
+
+    try{
+
+        const problemId = Number(req.params.probemId);
+        const contestId = Number(req.params.contestId);
+        const userId = req.user.id;
+        const { code , language} = req.body;
+
+        if( !code || language){
+            return res.status(401).json({ message: " code and language required"});
+        }
+
+        const contest = await prisma.contest.findUnique({
+            where:{
+                id: contestId,
+            }
+        })
+
+        if(!contest){
+            return res.status(400).json({ message: " Contest not found"})
+        }
+
+        if( contest.status !== "LIVE"){
+            return res.status(400).json({ message: " contest not live"});
+        }
+
+        const contestProblem = await prisma.contestProblem.findUnique({
+            where:{
+                contestId_problemId:{
+                    contestId,
+                    problemId,
+                },
+            },
+        })
+
+        const submission = await prisma.contestSubmission.create({
+            data:{
+                userId,
+                problemId,
+                contestId , 
+                code ,
+                language,
+                status: "PENDING",
+
+            }
+        })
+
+        res.status(201).json({
+            message: " contest submission resived",
+            submissionId: submission.id,
+        })
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({message: " Contest Submission failed"})
+    }
+}

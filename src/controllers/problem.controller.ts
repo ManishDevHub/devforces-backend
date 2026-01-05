@@ -162,7 +162,7 @@ export const submissionProblem = async (req: AuthRequest, res: Response) =>{
 
     try{
          const userId = req.user.id;
-    const problemId = Number(req.params.probemId);
+    const problemId = Number(req.params.problemId);
 
     const { code , language} = req.body;
 
@@ -191,7 +191,7 @@ export const submissionProblem = async (req: AuthRequest, res: Response) =>{
     
     })
 
-    res.status(201).json({
+   return res.status(201).json({
         message: " Problem submission resived",
         submissionId : submission.id
     })
