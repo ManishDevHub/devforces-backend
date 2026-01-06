@@ -6,11 +6,11 @@ import { createProblem, deleteAllProblem, deleteById, getAllProblem, getProblemB
 
 const createProbelmRoute = Router();
 
-createProbelmRoute.post('/createProbelm', auth, createProblem);
-createProbelmRoute.get('/allProblem', auth , isAdmin, getAllProblem);
-createProbelmRoute.get('/:id', auth ,isAdmin, getProblemById);
-createProbelmRoute.put('/:id', auth ,isAdmin, updateProblem);
-createProbelmRoute.delete('/:id', auth, isAdmin, deleteById);
-createProbelmRoute.delete('/', auth, isAdmin , deleteAllProblem);
+createProbelmRoute.post('/problem/createProbelm', auth,isAdmin, createProblem);
+createProbelmRoute.get('/problem/allProblem', auth , isAdmin, getAllProblem);
+createProbelmRoute.get('/problem/:id', auth ,isAdmin, getProblemById);
+createProbelmRoute.put('/problem/:id', auth ,isAdmin, updateProblem);
+createProbelmRoute.delete('/problem/:id', auth, isAdmin, deleteById);
+createProbelmRoute.delete('/problem/deleteAll', auth, isAdmin , deleteAllProblem);
 
 export default createProbelmRoute;

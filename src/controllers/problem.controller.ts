@@ -6,7 +6,7 @@ import { auth, AuthRequest } from "../middlewares/auth";
 export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
     try{
 
-        const problems = prisma.problem.findMany({
+        const problems =  await prisma.problem.findMany({
             select:{
                 id:true,
                 title: true,
@@ -117,44 +117,49 @@ export const getUnsolvedProblem = async( req: AuthRequest, res: Response) =>{
 }
 
 
-export const searchProblem = async (req: Request, res: Response) =>{
-    try{
+export const searchProblem = async (req: Request, res: Response) => {
+  try {
+    const { q, id } = req.query;
 
-        const { q , id} = req.body;
+    // search by id
+    if (id) {
+      const problem = await prisma.problem.findUnique({
+        where: { id: Number(id) },
+      });
 
-        if(id){
-            const probem = await prisma.problem.findUnique({
-                where:{ id: Number(id)},
-            })
+      if (!problem) {
+        return res.status(404).json({ message: "Problem not found" });
+      }
 
-            if(!probem){
-                return res.status(404).json({message: "Problem not found"})
-            }
-            return res.json(probem);
-        }
-
-        if(q){
-            const probems = await prisma.problem.findMany({
-                where:{
-                    title:{
-                        contains:String(q),
-                        mode: "insensitive"
-                    }
-                },
-                orderBy: { id: "asc"}
-            })
-            return res.json(probems);
-        }
-
-        return res.status(400).json({
-            message: " Provide problem id or search query"
-        })
-
-    }catch(errro){
-        console.error(errro)
-        res.status(500).json({message:  "Failed to Search Problem"})
+      return res.json(problem);
     }
-}
+
+    // search by title
+    if (q) {
+      const problems = await prisma.problem.findMany({
+        where: {
+          title: {
+            contains: String(q),
+            mode: "insensitive",
+          },
+        },
+        orderBy: { id: "asc" },
+      });
+
+      return res.json(problems);
+    }
+
+    return res.status(400).json({
+      message: "Provide problem id or search query",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Failed to Search Problem",
+    });
+  }
+};
+
 
 
 

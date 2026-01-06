@@ -8,12 +8,12 @@ import {  addProblemsToContest, createContest, deleteAllContest, deleteConById, 
 
 const adminContestRoute = Router();
 
-adminContestRoute.post('/createContest', auth, createContest);
+adminContestRoute.post('/createContest', auth,isAdmin, createContest);
 adminContestRoute.put('/updateContest/:id', auth , isAdmin , updateContest);
 adminContestRoute.delete('/deleteContest/:id', auth , isAdmin, deleteConById);
 adminContestRoute.delete('/deleteAllContest' , auth , isAdmin , deleteAllContest);
 adminContestRoute.get('/getAllContestByadmin', auth , isAdmin , getAllConByAdmin);
 adminContestRoute.get('/getContestByIdByAdmin/:id' , auth , isAdmin , getById);
-adminContestRoute.post("/contest/:contestId/problems" , auth , addProblemsToContest);
+adminContestRoute.post("/contest/:contestId/problems" , auth , isAdmin, addProblemsToContest);
 
 export default adminContestRoute;

@@ -6,10 +6,10 @@ import { isUser } from "../middlewares/user";
 
 
  const problemRoute = Router();
-problemRoute.get('/problems', auth , isUser , getAllProblems );
-problemRoute.get('/:problemId', auth, isUser, getSingleProblem);
+problemRoute.get('problem/problems', auth , isUser , getAllProblems );
+problemRoute.get('problem/:problemId', auth, isUser, getSingleProblem);
 problemRoute.get('/problem/solved' , auth, isUser, getSolveProblem);
 problemRoute.get('/problem/unsolved' , auth, isUser, getUnsolvedProblem);
-problemRoute.get('/search', auth ,isUser, searchProblem);
+problemRoute.get('/problem/search', auth ,isUser, searchProblem);
 
 export default problemRoute;

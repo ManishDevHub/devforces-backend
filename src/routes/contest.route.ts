@@ -8,12 +8,12 @@ import { getAllContest, getContestByType, getContestDetails, getLiveContest, get
 
 const contestRoute = Router();
 
-contestRoute.get('/allcontest', auth, isUser, getAllContest);
-contestRoute.get('/upcomming', auth, isUser, getUpcommingContest);
-contestRoute.get('/live', auth , isUser, getLiveContest);
-contestRoute.get('/past', auth, isUser, getPastContest);
-contestRoute.get('/type/:type', auth, isUser, getContestByType);
-contestRoute.get('/:contestId' , auth , isUser , getContestDetails);
+contestRoute.get('/contest/allcontest', auth, isUser, getAllContest);
+contestRoute.get('/contest/upcomming', auth, isUser, getUpcommingContest);
+contestRoute.get('/contest/live', auth , isUser, getLiveContest);
+contestRoute.get('/contest/past', auth, isUser, getPastContest);
+contestRoute.get('/contest/type/:type', auth, isUser, getContestByType);
+contestRoute.get('/contest/:contestId' , auth , isUser , getContestDetails);
 contestRoute.get('/:contestId/join', auth , isUser, joinContest);
 
 export default contestRoute;

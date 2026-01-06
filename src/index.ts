@@ -30,13 +30,14 @@ interface AuthRequest extends Request{
 
 app.use("/api/user", router);
 app.use('/api/user', problemRoute);
-app.use('/api/user/contest', contestRoute);
+app.use('/api/user', contestRoute);
+app.use('/api/user', submissionRoute);
 
 app.use('/api/admin', AdminRouter);
-app.use('/api/user', createProbelmRoute);
-app.use('/api/user', adminContestRoute);
+app.use('/api/admin', createProbelmRoute);
+app.use('/api/admin', adminContestRoute);
 
-app.use('/api/user', submissionRoute);
+
 
 
 

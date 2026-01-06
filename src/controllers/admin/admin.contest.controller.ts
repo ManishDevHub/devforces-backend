@@ -4,30 +4,41 @@ import { Request,Response } from "express";
 import prisma from "../../config/prisma";
 import { AuthRequest } from "../../middlewares/auth";
 
-export const createContest = async (req: AuthRequest , res: Response) =>{
+import { ContestStatus } from "../../generated/prisma";
 
-    try{
-        const { title , type , startTime , endTime} = req.body;
-        const adminId = req.user.id;
-        const constest = await prisma.contest.create({
-            data: {
-                title,
-                type,
-                startTime: new Date (startTime),
-                endTime: new Date(endTime),
-                status:"UPCOMING",
-                createdBy:adminId,
-            }
-        })
-        if(!constest){
-            return res.status(404).json({ message : " Contest not Created"});
-        }
-        res.json(constest);
+export const createContest = async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, type, startTime, endTime } = req.body;
+    const adminId = req.user.id;
 
-    }catch( error){
-        res.status(500).json({ message: " Failed to Create contest"});
-    }
-}
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const now = new Date();
+
+    let status: ContestStatus;
+
+    if (now < start) status = ContestStatus.UPCOMING;
+    else if (now <= end) status = ContestStatus.LIVE;
+    else status = ContestStatus.COMPLETED;
+
+    const contest = await prisma.contest.create({
+      data: {
+        title,
+        type,
+        startTime: start,
+        endTime: end,
+        status,
+        createdBy: adminId,
+      },
+    });
+
+    return res.json(contest);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to create contest" });
+  }
+};
+
 
 export const updateContest = async (req: Request, res: Response) => {
   try {
