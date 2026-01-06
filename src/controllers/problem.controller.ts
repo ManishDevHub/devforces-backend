@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { auth, AuthRequest } from "../middlewares/auth";
+import { Status } from "../generated/prisma";
 
 export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
     try{
@@ -163,49 +164,49 @@ export const searchProblem = async (req: Request, res: Response) => {
 
 
 
-export const submissionProblem = async (req: AuthRequest, res: Response) =>{
-
-    try{
-         const userId = req.user.id;
+export const submissionProblem = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user.id;
     const problemId = Number(req.params.problemId);
 
-    const { code , language} = req.body;
+    const { code, language } = req.body;
 
-    if(! code || ! language){
-        res.status(403).json({ message: " code and language required"});
-
+    
+    if (!code || !language) {
+      return res.status(403).json({
+        message: "code and language required",
+      });
     }
 
     const problem = await prisma.problem.findUnique({
-        where: {id : problemId}
-    })
+      where: { id: problemId },
+    });
 
-    if( !problem ){
-        return res.status(400).json({ message: " Problem not found"});
-
+    if (!problem) {
+      return res.status(400).json({
+        message: "Problem not found",
+      });
     }
 
     const submission = await prisma.submission.create({
-        data: {
-            userId,
-            problemId,
-            code,
-            language,
-            status:"PENDING"
-        }
-    
-    })
+      data: {
+        userId,
+        problemId,
+        code,
+        language,
+        status: Status.PENDING, 
+      },
+    });
 
-   return res.status(201).json({
-        message: " Problem submission resived",
-        submissionId : submission.id
-    })
-
-
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ message: "submission failed"})
-    }
-
-   
-}
+    return res.status(201).json({
+      message: "Problem submission received",
+      submissionId: submission.id,
+     
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "submission failed into",
+    });
+  }
+};

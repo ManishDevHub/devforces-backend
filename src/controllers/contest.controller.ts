@@ -2,6 +2,7 @@
 import { Request , Response } from "express";
 import { AuthRequest } from "../middlewares/auth";
 import prisma from "../config/prisma";
+import { Status } from "../generated/prisma";
 
 import { ContestType } from "../generated/prisma";
 
@@ -173,12 +174,12 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
 
     try{
 
-        const problemId = Number(req.params.probemId);
+        const problemId = Number(req.params.problemId);
         const contestId = Number(req.params.contestId);
         const userId = req.user.id;
         const { code , language} = req.body;
 
-        if( !code || language){
+        if( !code || !language){
             return res.status(401).json({ message: " code and language required"});
         }
 
@@ -192,9 +193,12 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
             return res.status(400).json({ message: " Contest not found"})
         }
 
-        if( contest.status !== "LIVE"){
-            return res.status(400).json({ message: " contest not live"});
-        }
+          const now = new Date();
+            if (now < contest.startTime || now > contest.endTime) {
+                      return res.status(400).json({
+                                            message: "contest not live",
+                                      });
+                                           }
 
         const contestProblem = await prisma.contestProblem.findUnique({
             where:{
@@ -212,7 +216,7 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
                 contestId , 
                 code ,
                 language,
-                status: "PENDING",
+                status: Status.PENDING,
 
             }
         })

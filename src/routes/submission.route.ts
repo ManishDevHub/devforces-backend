@@ -6,7 +6,7 @@ import { submissionContestProblem } from "../controllers/contest.controller";
 
 const submissionRoute = Router();
 
-submissionRoute.post("/problems/:id/submit", auth , submissionProblem);
+submissionRoute.post("/problems/:problemId/submit", auth , submissionProblem);
 submissionRoute.post( "/contests/:contestId/problems/:problemId/submit", auth, submissionContestProblem)
   
 
