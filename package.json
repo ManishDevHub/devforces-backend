@@ -22,11 +22,14 @@
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.4",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.66.4",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "crypt": "^0.0.2",
+    "dockerode": "^4.0.9",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "ioredis": "^5.9.0",
     "jsonwebtoken": "^9.0.3",
     "migrate": "^2.1.0",
     "multer": "^2.0.2",
@@ -43,5 +46,3 @@
     "typescript": "^5.9.3"
   }
 }
-
-
