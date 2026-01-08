@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { auth, AuthRequest } from "../middlewares/auth";
 import { Status } from "../generated/prisma";
+import { submissionQueue } from "../queues/submission.queue";
 
 export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
     try{
@@ -197,6 +198,11 @@ export const submissionProblem = async (req: AuthRequest, res: Response) => {
         status: Status.PENDING, 
       },
     });
+
+    await submissionQueue.add("evaluate-submission",{
+      submission:submission.id,
+      type:"NORMAL",
+    })
 
     return res.status(201).json({
       message: "Problem submission received",

@@ -5,6 +5,7 @@ import prisma from "../config/prisma";
 import { Status } from "../generated/prisma";
 
 import { ContestType } from "../generated/prisma";
+import { submissionQueue } from "../queues/submission.queue";
 
 export const getAllContest = async ( req: Request, res: Response) =>{
     try{
@@ -221,7 +222,13 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
             }
         })
 
-        res.status(201).json({
+        await submissionQueue.add("evaluate-submission" , {
+            submission: submission.id,
+            contestId,
+            type:"CONTEST",
+        })
+
+    return res.status(201).json({
             message: " contest submission resived",
             submissionId: submission.id,
         })
