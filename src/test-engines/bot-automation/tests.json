@@ -1,0 +1,10 @@
+
+{
+    "type": "BOT",
+    "function":"handleMessage",
+    "tests":[
+
+        { "input": "/start" , "contains": "Welcome"},
+        { "input": "/help" , "contains": "Help"}
+    ]
+}

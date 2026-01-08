@@ -1,0 +1,10 @@
+
+
+{
+    "type": "API_BACKEND",
+    "function":"CreateUser",
+    "tests":[
+        { "input":{ "email": "a@test.com"}, "status":201},
+        { "input": { "email": ""}, "status": 400}
+    ]
+}

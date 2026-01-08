@@ -1,0 +1,10 @@
+
+{
+  "type": "SYSTEM",
+  "checks": [
+    "idempotency",
+    "retry",
+    "failure-handling",
+    "async-flow"
+  ]
+}

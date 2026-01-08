@@ -1,0 +1,11 @@
+
+{
+    "type": "APP_BACKEND",
+    "function": "appBackend",
+    "flow":[
+        "create",
+        "update",
+        "delete",
+        "fetch"
+    ]
+}

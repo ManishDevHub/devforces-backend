@@ -1,0 +1,9 @@
+{
+    "type":"AUTH_SECURITY",
+    "function": "authenticate",
+    "tests":[
+        { "input":{ "email": "a@test.com" , "password": "pass@123"}, "expected": true},
+        { "input": { "email": "a@test.com" , "password":"wrong"}, "expected":false},
+        { "input": {"email":"" , "password":""}, "expected":false}
+    ]
+}
