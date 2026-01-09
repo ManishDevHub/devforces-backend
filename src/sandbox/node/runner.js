@@ -1,6 +1,7 @@
 
 import fs from 'fs'
-import userCode from './user_code.js'
+import {userCode} from './user_code.js'
+
 
 
 const tests = JSON.parse(fs.readFileSync("./tests.json", "utf-8"));
