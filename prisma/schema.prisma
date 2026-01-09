@@ -9,6 +9,12 @@ datasource db {
 
 //////////////////// ENUMS ////////////////////
 
+enum Language{
+  node 
+  python
+  java
+}
+
 enum Role {
   USER
   ADMIN
@@ -113,7 +119,7 @@ model Submission {
   userId      String
   problemId   Int
   code        String
-  language    String
+  language    Language
   status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())
@@ -188,7 +194,7 @@ model ContestSubmission {
   contestId   Int
   problemId   Int
   code        String
-  language    String
+  language    Language
   status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())

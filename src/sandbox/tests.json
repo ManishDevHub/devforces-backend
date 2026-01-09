@@ -1,0 +1,16 @@
+
+{
+
+    "tests":[
+        { 
+            "function": "authenticate",
+            "input":{ "password":"pass@123"},
+            "expected":true
+        },
+        {
+            "function":"authenticate",
+            "input":{ "password":"wrong"},
+            "expected":false
+        }
+    ]
+}

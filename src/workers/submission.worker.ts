@@ -4,6 +4,8 @@ import prisma from "../config/prisma";
 import { redisQueueConfig } from "../config/redis";
 
 import { Worker } from "bullmq"
+import { runDocker } from "../utils/runDocker";
+import { run } from "node:test";
 
 new Worker( "submission-queue", 
     async (job) => {
@@ -21,9 +23,23 @@ new Worker( "submission-queue",
             })
 
             if(!submission) return ;
-            // TODO (later)
-           // 1. Run sandbox
-           // 2. Run test cases
+
+            const result = await runDocker({
+                language: submission.language,
+                code: submission.code,
+                tests: submission.problem.examples
+            })
+
+            await prisma.submission.update({
+                where:{ id: submissionId},
+                data:{
+                    status:result.status,
+                    executionMs: result.time
+                }
+            })
+
+
+          
           // 3. AI evaluation
           // 4. Leaderboard update (Redis)
         }
@@ -39,8 +55,21 @@ new Worker( "submission-queue",
             })
 
             if(!submission) return;
-             // 1. Run sandbox
-             // 2. Run test cases
+           
+const result = await runDocker({
+    language: submission.language,
+    code: submission.code,
+    tests: submission.problem.examples
+})
+
+await prisma.contestSubmission.update({
+    where:{ id: submissionId},
+    data:{
+        status: result.status,
+        executionMs:result.time
+    }
+})
+
              // 3. AI evaluation
              // 4. Leaderboard update (Redis)
 
