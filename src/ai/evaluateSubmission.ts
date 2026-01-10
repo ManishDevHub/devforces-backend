@@ -2,8 +2,11 @@
 
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
-
+import { getProblemTypeRubric } from "./rubrics/problemType.rubrics";
 import { evaluationPrompt } from "./prompts/evaluator";
+import { ProblemType } from "../generated/prisma";
+
+
 
 
 const model = new ChatOpenAI({
@@ -11,15 +14,34 @@ const model = new ChatOpenAI({
     temprerature: 0,
 })
 
-export  async function evaluateSubmission(input:any) {
+export  async function evaluateSubmission(input:{
+    
+    problem: string;
+  constraints?: string;
+  language: string;
+  code: string;
+  testResult: any;
+  problemType: string
+}) {
+    const rubic = getProblemTypeRubric(input.problemType)
     const prompt = new PromptTemplate({
         templete: evaluationPrompt,
         inputVariable: Object.keys(input),
     })
 
-    const chain = prompt.pipe(model),
-    const result = await chain.invoke(input)
+    const chain = prompt.pipe(model);
+    const result = await chain.invoke({
+        ...input,
+        ProblemType:rubic
+    })
+     const raw = result.content.toString().trim();
 
-    return JSON.parse(result.content as string)
+    
+     try {
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error("AI returned invalid JSON:", raw);
+    throw new Error("AI evaluation failed: invalid JSON");
+  }
     
 }

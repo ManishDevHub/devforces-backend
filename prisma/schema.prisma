@@ -8,6 +8,14 @@ datasource db {
 }
 
 //////////////////// ENUMS ////////////////////
+enum ProblemType {
+  AUTH_SECURITY
+  API_BACKEND
+  BOT_AUTOMATION
+  APP_BACKEND
+  SYSTEM_DESIGN
+}
+
 
 enum Language{
   node 
@@ -102,6 +110,7 @@ model Problem {
   difficulty  Difficulty
   examples    Json?
   constraints String?
+  type        ProblemType
   createdAt   DateTime   @default(now())
 
   createdBy String
@@ -123,7 +132,8 @@ model Submission {
   status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())
-
+  score       Int?
+  feedback    Json?
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
@@ -198,7 +208,8 @@ model ContestSubmission {
   status      Status @default(PENDING)
   executionMs Int?
   createdAt   DateTime @default(now())
-
+  score       Int?
+  feedback    Json?
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
   problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)

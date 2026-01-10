@@ -5,17 +5,22 @@ import { redisQueueConfig } from "../config/redis";
 import { Worker } from "bullmq"
 import { runDocker } from "../utils/runDocker";
 import { evaluateSubmission } from "../ai/evaluateSubmission";
-import { constants } from "buffer";
-import { Language } from "../generated/prisma";
-import sandbox from "bullmq/dist/esm/classes/sandbox";
-import { date } from "zod";
+
+
+
+
 
 
 new Worker( "submission-queue", 
     async (job) => {
-        const { contestId , type , submissionId} = job.data;
+        const {  type , submissionId} = job.data ;
+
+        if(!submissionId || !type){
+            throw new Error("Invalid Job payload")
+        }
 
         console.log("processing submission:" , submissionId, type);
+ 
 
         if( type === "NORMAL"){
             
@@ -28,7 +33,7 @@ new Worker( "submission-queue",
 
             if(!submission) return ;
 
-            const result = await runDocker({
+            const sandboxresult = await runDocker({
                 language: submission.language,
                 code: submission.code,
                 tests: submission.problem.examples
@@ -37,8 +42,8 @@ new Worker( "submission-queue",
             await prisma.submission.update({
                 where:{ id: submissionId},
                 data:{
-                    status:result.status,
-                    executionMs: result.time
+                    status:sandboxresult.status,
+                    executionMs: sandboxresult.time
                 }
             })
 
@@ -48,8 +53,8 @@ new Worker( "submission-queue",
                 constants: submission.problem.constraints,
                 language: submission.language,
                 code: submission.code,
-                testResult:sandboxResult,
-                problemType: submission.problem,
+                testResult:sandboxresult,
+                problemType: submission.problem.type
             })
 
             await prisma.submission.update({
@@ -96,8 +101,8 @@ await prisma.contestSubmission.update({
                 constants: submission.problem.constraints,
                 language: submission.language,
                 code: submission.code,
-                testResult:sandboxResult,
-                problemType: submission.problem,
+                testResult:result,
+                problemType: submission.problem.type
             })
 
             await prisma.contestSubmission.update({
