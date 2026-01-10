@@ -2,10 +2,14 @@
 
 import prisma from "../config/prisma";
 import { redisQueueConfig } from "../config/redis";
-
 import { Worker } from "bullmq"
 import { runDocker } from "../utils/runDocker";
-import { run } from "node:test";
+import { evaluateSubmission } from "../ai/evaluateSubmission";
+import { constants } from "buffer";
+import { Language } from "../generated/prisma";
+import sandbox from "bullmq/dist/esm/classes/sandbox";
+import { date } from "zod";
+
 
 new Worker( "submission-queue", 
     async (job) => {
@@ -39,8 +43,26 @@ new Worker( "submission-queue",
             })
 
 
+            const aiResult = await evaluateSubmission({
+                problem: submission.problem.description,
+                constants: submission.problem.constraints,
+                language: submission.language,
+                code: submission.code,
+                testResult:sandboxResult,
+                problemType: submission.problem,
+            })
+
+            await prisma.submission.update({
+                where:{id: submissionId},
+                data:{
+                    score: aiResult,
+                    status: aiResult.Status,
+                    feedback: aiResult
+                }
+            })
+
           
-          // 3. AI evaluation
+        
           // 4. Leaderboard update (Redis)
         }
 
@@ -69,8 +91,25 @@ await prisma.contestSubmission.update({
         executionMs:result.time
     }
 })
+ const aiResult = await evaluateSubmission({
+                problem: submission.problem.description,
+                constants: submission.problem.constraints,
+                language: submission.language,
+                code: submission.code,
+                testResult:sandboxResult,
+                problemType: submission.problem,
+            })
 
-             // 3. AI evaluation
+            await prisma.contestSubmission.update({
+                where:{id: submissionId},
+                data:{
+                    score: aiResult,
+                    status: aiResult.Status,
+                    feedback: aiResult
+                }
+            })
+
+            
              // 4. Leaderboard update (Redis)
 
         }
