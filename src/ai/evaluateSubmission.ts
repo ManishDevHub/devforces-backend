@@ -14,15 +14,7 @@ const model = new ChatOpenAI({
     temprerature: 0,
 })
 
-export  async function evaluateSubmission(input:{
-    
-    problem: string;
-  constraints?: string;
-  language: string;
-  code: string;
-  testResult: any;
-  problemType: string
-}) {
+export  async function evaluateSubmission(input:any) {
     const rubic = getProblemTypeRubric(input.problemType)
     const prompt = new PromptTemplate({
         templete: evaluationPrompt,

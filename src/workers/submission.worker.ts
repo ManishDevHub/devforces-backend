@@ -50,7 +50,7 @@ new Worker( "submission-queue",
 
             const aiResult = await evaluateSubmission({
                 problem: submission.problem.description,
-                constants: submission.problem.constraints,
+                constraints: submission.problem.constraints,
                 language: submission.language,
                 code: submission.code,
                 testResult:sandboxresult,
@@ -98,7 +98,7 @@ await prisma.contestSubmission.update({
 })
  const aiResult = await evaluateSubmission({
                 problem: submission.problem.description,
-                constants: submission.problem.constraints,
+                constraints: submission.problem.constraints,
                 language: submission.language,
                 code: submission.code,
                 testResult:result,
