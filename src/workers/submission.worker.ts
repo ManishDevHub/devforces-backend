@@ -5,6 +5,7 @@ import { redisQueueConfig } from "../config/redis";
 import { Worker } from "bullmq"
 import { runDocker } from "../utils/runDocker";
 import { evaluateSubmission } from "../ai/evaluateSubmission";
+import { normalizeScore } from "../utils/normalizeScore";
 
 
 
@@ -66,6 +67,26 @@ new Worker( "submission-queue",
                 }
             })
 
+ const normalizedScore = normalizeScore({
+             rowScore: aiResult.score,
+             difficulty: submission.problem.difficulty,
+             problemType: submission.problem.type,
+
+                 });
+
+                 await prisma.contestSubmission.update({
+
+                     where: { id: submissionId },
+                  data: {
+                          score: normalizedScore,
+                          status: aiResult.verdict,
+                          feedback: aiResult,
+                     },
+                 });
+
+
+
+
           
         
           // 4. Leaderboard update (Redis)
@@ -113,6 +134,23 @@ await prisma.contestSubmission.update({
                     feedback: aiResult
                 }
             })
+
+            const normalizedScore = normalizeScore({
+             rowScore: aiResult.score,
+             difficulty: submission.problem.difficulty,
+             problemType: submission.problem.type,
+
+                 });
+
+                 await prisma.contestSubmission.update({
+
+                     where: { id: submissionId },
+                  data: {
+                          score: normalizedScore,
+                          status: aiResult.verdict,
+                          feedback: aiResult,
+                     },
+                 });
 
             
              // 4. Leaderboard update (Redis)
