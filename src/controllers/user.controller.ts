@@ -2,7 +2,7 @@ import e, { Request, Response } from "express";
 import  prisma   from '../config/prisma'
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
-import { any, email, string, templateLiteral, ZodAny } from "zod";
+
 import { auth, AuthRequest  } from "../middlewares/auth";
 import { uploadCloToBinary } from "../utils/cloudinaryUpload";
 import cloudinary from "../config/cloudinary";
