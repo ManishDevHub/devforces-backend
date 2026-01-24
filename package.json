@@ -7,7 +7,8 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "worker": "ts-node src/workers/submission.worker.ts"
+    "worker": "ts-node src/workers/submission.worker.ts",
+    "ws": "ts-node src/ws/ws.server.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^7.0.4",
+    "@types/ws": "^8.18.1",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.66.4",
     "cloudinary": "^2.8.0",
@@ -37,12 +39,13 @@
     "multer-storage-cloudinary": "^2.2.1",
     "nodemailer": "^7.0.11",
     "reset": "^0.1.0",
+    "ws": "^8.19.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
-    "prisma": "^7.2.0",
+    "prisma": "^6.19.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }
