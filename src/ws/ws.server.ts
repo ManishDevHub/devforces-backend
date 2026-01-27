@@ -1,13 +1,35 @@
 import { WebSocketServer, WebSocket } from "ws";
 import Redis from "ioredis";
 import prisma from "../config/prisma";
+import { email } from "zod";
 
 
 const wss = new WebSocketServer({ port: 8080 });
 console.log(" Websocket running on port 8080");
 
-const redisPub = new Redis();
-const redisSub =  new Redis();
+const redisPub = new Redis({
+    host: "127.0.0.1",
+  port: 6379,
+});
+const redisSub =  new Redis({
+    host: "127.0.0.1",
+  port: 6379,
+});
+redisPub.on("connect", () => {
+  console.log("Redis PUB connected");
+});
+
+redisSub.on("connect", () => {
+  console.log("Redis SUB connected");
+});
+
+redisPub.on("error", (err) => {
+  console.error("Redis PUB error:", err.message);
+});
+
+redisSub.on("error", (err) => {
+  console.error("Redis SUB error:", err.message);
+});
 const allUsers: WebSocket[] = [];
 
 redisSub.subscribe("chat");
@@ -31,7 +53,7 @@ wss.on("connection",  async (socket: WebSocket) => {
       take:50,
   })
 
-  history.forEach( (msg) => {
+  history.forEach( (msg:any) => {
    socket.send(JSON.stringify({
       type: "history",
       data: msg,
@@ -44,13 +66,14 @@ wss.on("connection",  async (socket: WebSocket) => {
 
 
    if( data.type === "send"){
-
+      console.log(data,"this is data and here everthing is failed")
       const saved = await prisma.chatMessage.create({
          data:{
             userId:data.userId,
-            message:data.message
+            message:data.message,
          }
       })
+      console.log("is it good")
    
    redisPub.publish("chat" , JSON.stringify({
       type: "send",

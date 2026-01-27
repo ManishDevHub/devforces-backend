@@ -1,14 +1,17 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "ProblemType" AS ENUM ('AUTH_SECURITY', 'API_BACKEND', 'BOT_AUTOMATION', 'APP_BACKEND', 'SYSTEM_DESIGN');
 
-  - A unique constraint covering the columns `[userId]` on the table `OTP` will be added. If there are existing duplicate values, this will fail.
+-- CreateEnum
+CREATE TYPE "Language" AS ENUM ('node', 'python', 'java');
 
-*/
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
+
 -- CreateEnum
 CREATE TYPE "Difficulty" AS ENUM ('EASY', 'MEDIUM', 'HARD');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('ACCEPTED', 'WRONG_ANSWER', 'RUNTIME_ERROR', 'TIME_LIMIT', 'COMPILATION_ERROR');
+CREATE TYPE "Status" AS ENUM ('PENDING', 'RUNNING', 'ACCEPTED', 'WRONG_ANSWER', 'RUNTIME_ERROR', 'TIME_LIMIT', 'COMPILATION_ERROR');
 
 -- CreateEnum
 CREATE TYPE "ContestType" AS ENUM ('WEEKLY', 'BIWEEKLY', 'MONTHLY');
@@ -16,12 +19,34 @@ CREATE TYPE "ContestType" AS ENUM ('WEEKLY', 'BIWEEKLY', 'MONTHLY');
 -- CreateEnum
 CREATE TYPE "ContestStatus" AS ENUM ('UPCOMING', 'LIVE', 'COMPLETED');
 
--- DropForeignKey
-ALTER TABLE "OTP" DROP CONSTRAINT "OTP_userId_fkey";
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'USER',
+    "avatar" TEXT,
+    "avatarPublicId" TEXT,
+    "bio" TEXT,
+    "resetToken" TEXT,
+    "resetTokenExpires" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "avatar" TEXT,
-ADD COLUMN     "bio" TEXT;
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "OTP" (
+    "id" TEXT NOT NULL,
+    "otp" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "OTP_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Problem" (
@@ -31,6 +56,7 @@ CREATE TABLE "Problem" (
     "difficulty" "Difficulty" NOT NULL,
     "examples" JSONB,
     "constraints" TEXT,
+    "type" "ProblemType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" TEXT NOT NULL,
 
@@ -43,10 +69,12 @@ CREATE TABLE "Submission" (
     "userId" TEXT NOT NULL,
     "problemId" INTEGER NOT NULL,
     "code" TEXT NOT NULL,
-    "language" TEXT NOT NULL,
-    "status" "Status" NOT NULL,
+    "language" "Language" NOT NULL,
+    "status" "Status" NOT NULL DEFAULT 'PENDING',
     "executionMs" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "score" INTEGER,
+    "feedback" JSONB,
 
     CONSTRAINT "Submission_pkey" PRIMARY KEY ("id")
 );
@@ -100,10 +128,12 @@ CREATE TABLE "ContestSubmission" (
     "contestId" INTEGER NOT NULL,
     "problemId" INTEGER NOT NULL,
     "code" TEXT NOT NULL,
-    "language" TEXT NOT NULL,
-    "status" "Status" NOT NULL,
+    "language" "Language" NOT NULL,
+    "status" "Status" NOT NULL DEFAULT 'PENDING',
     "executionMs" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "score" INTEGER,
+    "feedback" JSONB,
 
     CONSTRAINT "ContestSubmission_pkey" PRIMARY KEY ("id")
 );
@@ -120,6 +150,12 @@ CREATE TABLE "ChatMessage" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OTP_userId_key" ON "OTP"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Activity_userId_date_key" ON "Activity"("userId", "date");
 
 -- CreateIndex
@@ -127,9 +163,6 @@ CREATE UNIQUE INDEX "ContestProblem_contestId_problemId_key" ON "ContestProblem"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ContestRegistration_userId_contestId_key" ON "ContestRegistration"("userId", "contestId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "OTP_userId_key" ON "OTP"("userId");
 
 -- AddForeignKey
 ALTER TABLE "OTP" ADD CONSTRAINT "OTP_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

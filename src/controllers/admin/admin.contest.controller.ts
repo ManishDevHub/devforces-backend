@@ -3,8 +3,8 @@
 import { Request,Response } from "express";
 import prisma from "../../config/prisma";
 import { AuthRequest } from "../../middlewares/auth";
+import { ContestStatus } from "../../generated/prisma/enums";
 
-import { ContestStatus } from "../../generated/prisma";
 
 export const createContest = async (req: AuthRequest, res: Response) => {
   try {

@@ -4,7 +4,6 @@ import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { getProblemTypeRubric } from "./rubrics/problemType.rubrics";
 import { evaluationPrompt } from "./prompts/evaluator";
-import { ProblemType } from "../generated/prisma";
 
 
 

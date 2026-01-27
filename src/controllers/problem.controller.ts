@@ -2,8 +2,8 @@
 import { Request, Response } from "express";
 import prisma from "../config/prisma";
 import { auth, AuthRequest } from "../middlewares/auth";
-import { Status } from "../generated/prisma";
 import { submissionQueue } from "../queues/submission.queue";
+import { Status } from "../generated/prisma/enums";
 
 export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
     try{
