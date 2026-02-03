@@ -9,13 +9,14 @@ import { AuthRequest } from "../../middlewares/auth";
 export const createProblem = async ( req: AuthRequest , res: Response) => {
     try{
          const createdBy = req.user.id;
-        const { title , description,difficulty, examples, constraints} = req.body
+        const { title , description,difficulty,type, examples, constraints} = req.body
        
         const problem = await prisma.problem.create({
             data: {
                 title,
                 description,
                 difficulty,
+                type,
                 examples,
                 constraints,
                 createdBy,
