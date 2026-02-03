@@ -13,6 +13,7 @@ export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
                 id:true,
                 title: true,
                 difficulty:true,
+                type:true,
                 createdAt: true,
             },
             orderBy: { createdAt: "desc"}
