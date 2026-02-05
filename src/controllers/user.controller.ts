@@ -3,7 +3,7 @@ import  prisma   from '../config/prisma'
 import bcrypt from "bcrypt";
 import jwt from 'jsonwebtoken'
 
-import { auth, AuthRequest  } from "../middlewares/auth";
+import {  AuthRequest  } from "../middlewares/auth";
 import { uploadCloToBinary } from "../utils/cloudinaryUpload";
 import cloudinary from "../config/cloudinary";
 
