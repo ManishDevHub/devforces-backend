@@ -14,6 +14,6 @@ contestRoute.get('/contest/live', auth , isUser, getLiveContest);
 contestRoute.get('/contest/past', auth, isUser, getPastContest);
 contestRoute.get('/contest/type/:type', auth, isUser, getContestByType);
 contestRoute.get('/contest/:contestId' , auth , isUser , getContestDetails);
-contestRoute.get('/:contestId/join', auth , isUser, joinContest);
+contestRoute.post('/contest/:contestId/join', auth , isUser, joinContest);
 
 export default contestRoute;

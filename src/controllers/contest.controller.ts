@@ -6,16 +6,30 @@ import prisma from "../config/prisma";
 import { submissionQueue } from "../queues/submission.queue";
 import { ContestType, Status } from "../generated/prisma/enums";
 
-export const getAllContest = async ( req: Request, res: Response) =>{
+export const getAllContest = async ( req: AuthRequest, res: Response) =>{
     try{
-
+          const userId = req.user?.id;
         const contests = await prisma.contest.findMany({
-            orderBy: { startTime: "desc"}
-        })
+    include: {
+      registrations: userId
+        ? {
+            where: { userId },
+            select: { id: true },
+          }
+        : false,
+    },
+  });
         if( !contests){
             return res.status(404).json({message: " Contest not found"})
         }
-        res.json(contests);
+         const formatted = contests.map(contest => ({
+    ...contest,
+    isRegistered: contest.registrations
+      ? contest.registrations.length > 0
+      : false,
+  }));
+
+        res.json(formatted);
 
     }catch( error){
         console.log(error);
