@@ -158,6 +158,19 @@ export const joinContest = async ( req: AuthRequest,  res: Response) => {
             return res.status(404).json({message : " Contest not found"})
         }
 
+          const alreadyRegistered = await prisma.contestRegistration.findUnique({
+      where: {
+        userId_contestId: {
+          userId,
+          contestId,
+        },
+      },
+    });
+
+    if (alreadyRegistered) {
+      return res.status(400).json({ message: "Already registered" });
+    }
+
         await prisma.contestRegistration.create({
             data:{ contestId , userId}
         })

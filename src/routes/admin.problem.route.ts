@@ -6,7 +6,7 @@ import { createProblem, deleteAllProblem, deleteById, getAllProblem, getProblemB
 
 const createProbelmRoute = Router();
 
-createProbelmRoute.post('/problem/createProbelm', auth,isAdmin, createProblem);
+createProbelmRoute.post('/problem/createProblem', auth,isAdmin, createProblem);
 createProbelmRoute.get('/problem/allProblem', auth , isAdmin, getAllProblem);
 createProbelmRoute.get('/problem/:id', auth ,isAdmin, getProblemById);
 createProbelmRoute.put('/problem/:id', auth ,isAdmin, updateProblem);

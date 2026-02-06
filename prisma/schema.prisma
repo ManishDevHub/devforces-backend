@@ -39,6 +39,12 @@ enum Difficulty {
   MEDIUM
   HARD
 }
+enum DifficultyContest {
+  EASY
+  MEDIUM
+  HARD
+}
+
 
 enum Status {
   PENDING
@@ -170,7 +176,7 @@ model Contest {
 
   createdBy String
   creator   User   @relation("ContestCreator", fields: [createdBy], references: [id])
-
+  difficultycon DifficultyContest @default(MEDIUM) 
   problems      ContestProblem[]
   registrations ContestRegistration[]
   submissions   ContestSubmission[]
