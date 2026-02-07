@@ -129,6 +129,6 @@ export const deleteAllProblem = async (req: Request, res: Response) =>{
         res.json(" All problem deleted successfully")
 
     }catch(error){
-        res.status(500).json({ message: " failed to delete all probem"})
+        res.status(500).json({ message: " failed to delete all probem"});
     }
 }

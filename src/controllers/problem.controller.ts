@@ -38,6 +38,7 @@ export const getSingleProblem = async ( req:Request, res: Response) => {
                 title:true,
                 description: true,
                 difficulty: true,
+                type: true,
                 examples: true,
                 constraints: true,
             }
