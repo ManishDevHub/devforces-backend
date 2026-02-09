@@ -27,9 +27,14 @@ export const getAllProblems = async ( req: AuthRequest, res:Response) =>{
 }
 
 
-export const getSingleProblem = async ( req:Request, res: Response) => {
+export const getSingleProblem = async ( req:AuthRequest, res: Response) => {
     try{
+
+     
         const problemId = Number( req.params.problemId);
+      
+
+       
 
         const problem = await prisma.problem.findUnique({
             where: { id: problemId},

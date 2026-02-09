@@ -14,20 +14,21 @@ export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
     const header = req.headers.authorization;
 
     if (!header || !header.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: Invalid or expire token " });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     const token = header.split(" ")[1];
-    const decode = jwt.verify(token, JWT_SECRET);
 
-    if (!decode) {
-      return res.status(401).json({ message: "Unauthorized or expire token " });
+    // 🔒 HARD STOP
+    if (!token || token === "undefined" || token === "null") {
+      return res.status(401).json({ message: "Invalid token" });
     }
-    (req.user = decode), next();
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
   } catch (error) {
-    console.error("Auth error :", error);
-    return res.json({ message: "Unauthorized access" });
+    console.error("Auth error:", error);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
