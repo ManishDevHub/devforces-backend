@@ -48,10 +48,18 @@ wss.on("connection",  async (socket: WebSocket) => {
 
   allUsers.push(socket);
 
-  const history = await prisma.chatMessage.findMany({
-      orderBy:{ createdAt: "asc"},
-      take:50,
-  })
+ const history = await prisma.chatMessage.findMany({
+  orderBy: { createdAt: "asc" },
+  take: 50,
+  include: {
+    user: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  },
+});
 
   history.forEach( (msg:any) => {
    socket.send(JSON.stringify({
@@ -66,14 +74,14 @@ wss.on("connection",  async (socket: WebSocket) => {
 
 
    if( data.type === "send"){
-      console.log(data,"this is data and here everthing is failed")
+     
       const saved = await prisma.chatMessage.create({
          data:{
             userId:data.userId,
             message:data.message,
          }
       })
-      console.log("is it good")
+    
    
    redisPub.publish("chat" , JSON.stringify({
       type: "send",
