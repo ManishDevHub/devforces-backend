@@ -124,39 +124,54 @@ export const getContestByType  = async ( req: Request, res: Response) =>{
     }
 }
 
-export const getContestDetails = async ( req: AuthRequest , res: Response) =>{
-    try{
-        const contestId = Number( req.params.contestId)
-        const userId = req.user.id;
+export const getContestDetails = async (req: AuthRequest, res: Response) => {
+  try {
+    const contestId = Number(req.params.contestId);
+    const userId = req.user.id;
 
-        const getDetails = await prisma.contest.findUnique({
-            where: { id: contestId},
-            include:{
-                problems:{
-                    include: {
-                        problem:{
-                            select: { id: true , title: true, difficulty: true}
-                        }
-                    }
-                },
-                registrations: {
-                    where: { userId}
-                }
-            }
-        })
+    const contest = await prisma.contest.findUnique({
+      where: { id: contestId },
+      include: {
+        problems: {
+          include: {
+            problem: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                difficulty: true,
+                examples: true,
+                constraints: true,
+                type: true,
+              },
+            },
+          },
+        },
+        registrations: {
+          where: { userId },
+        },
+      },
+    });
 
-        if( !getDetails){
-            return res.status(404).json({ message: " Details not found"});
-        }
-        res.json({
-            ...getDetails,
-            joined: getDetails.registrations.length > 0
-        })
-
-    }catch(error){
-        res.status(500).json({ message: " Failed to found contestDetails"})
+    if (!contest) {
+      return res.status(404).json({ message: "Contest not found" });
     }
-}
+
+    res.json({
+      id: contest.id,
+      title: contest.title,
+      startTime: contest.startTime,
+      endTime: contest.endTime,
+      problems: contest.problems.map((p, index) => ({
+        ...p.problem,
+        order: index + 1,
+      })),
+      joined: contest.registrations.length > 0,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch contest details" });
+  }
+};
 
 export const joinContest = async ( req: AuthRequest,  res: Response) => {
     try{ 
