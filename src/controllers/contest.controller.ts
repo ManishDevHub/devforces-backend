@@ -17,6 +17,11 @@ export const getAllContest = async ( req: AuthRequest, res: Response) =>{
             select: { id: true },
           }
         : false,
+         _count: {
+          select: {
+            problems: true,  
+          },
+        },
     },
   });
         if( !contests){
@@ -27,6 +32,7 @@ export const getAllContest = async ( req: AuthRequest, res: Response) =>{
     isRegistered: contest.registrations
       ? contest.registrations.length > 0
       : false,
+      problems: contest._count.problems,
   }));
 
         res.json(formatted);
