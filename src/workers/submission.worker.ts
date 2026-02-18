@@ -192,6 +192,25 @@ const processNormalSubmission = async (submissionId: number) => {
     },
   });
 
+  // Update user total points if first time accepted
+  if (finalStatus === Status.ACCEPTED) {
+    const previousAccepted = await prisma.submission.findFirst({
+      where: {
+        userId: submission.userId,
+        problemId: submission.problemId,
+        status: Status.ACCEPTED,
+        id: { not: submission.id },
+      },
+    });
+
+    if (!previousAccepted) {
+      await prisma.user.update({
+        where: { id: submission.userId },
+        data: { points: { increment: finalScore } },
+      });
+    }
+  }
+
   // Real-time Activity Update
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -291,6 +310,32 @@ const processContestSubmission = async (submissionId: number) => {
       }),
     },
   });
+
+  // Update user points for contest submission
+  // For contest submissions, we might want to add points every time or just once?
+  // Let's add points if it improves their score for this problem in this contest.
+  if (finalStatus === Status.ACCEPTED) {
+     const bestPrevious = await prisma.contestSubmission.findFirst({
+       where: {
+         userId: submission.userId,
+         contestId: submission.contestId,
+         problemId: submission.problemId,
+         status: Status.ACCEPTED,
+         id: { not: submission.id },
+       },
+       orderBy: { score: "desc" },
+     });
+
+     const previousBestScore = bestPrevious?.score || 0;
+     const scoreGain = Math.max(0, normalizedScore - previousBestScore);
+
+     if (scoreGain > 0) {
+       await prisma.user.update({
+         where: { id: submission.userId },
+         data: { points: { increment: scoreGain } },
+       });
+     }
+  }
 };
 
 const worker = new Worker(

@@ -243,6 +243,23 @@ export const submissionProblem = async (req: AuthRequest, res: Response) => {
             executionMs: 0,
           }
         });
+
+        // Update user total points if first time accepted
+        const previousAccepted = await prisma.submission.findFirst({
+          where: {
+            userId,
+            problemId,
+            status: Status.ACCEPTED,
+            id: { not: submission.id },
+          },
+        });
+
+        if (!previousAccepted) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: { points: { increment: finalScore } },
+          });
+        }
         
         // Real-time Activity Update
         const today = new Date();
