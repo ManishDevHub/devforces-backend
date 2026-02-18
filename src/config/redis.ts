@@ -8,5 +8,5 @@ export const redisConnection = process.env.REDIS_URL
         maxRetriesPerRequest: null,
     });
 
-// BullMQ can accept the Redis instance directly as the connection option
-export const redisQueueConfig = redisConnection;
+// Casting to any to avoid version mismatch errors between ioredis and bullmq's internal ioredis
+export const redisQueueConfig: any = redisConnection;
