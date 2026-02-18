@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "npx prisma generate && tsc",
+    "postinstall": "npm run build",
     "start": "node dist/index.js",
     "worker": "ts-node src/workers/submission.worker.ts",
     "ws": "ts-node src/ws/ws.server.ts"
