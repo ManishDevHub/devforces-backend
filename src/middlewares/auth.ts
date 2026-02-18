@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { any } from "zod";
-import { de } from "zod/v4/locales";
 
 const JWT_SECRET = process.env.JWT_SECRET || "sdklfhdfjdsfd";
 

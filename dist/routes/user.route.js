@@ -1,7 +1,24 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
 const express_1 = require("express");
 const user_controller_1 = require("../controllers/user.controller");
-const router = (0, express_1.Router)();
-router.post("/", user_controller_1.createUser);
-exports.default = router;
+const validate_1 = require("../middlewares/validate");
+const auth_schema_1 = require("../validations/auth.schema");
+const auth_1 = require("../middlewares/auth");
+const user_1 = require("../middlewares/user");
+const forgotPassword_controller_1 = require("../controllers/forgotPassword.controller");
+const resetPassword_controller_1 = require("../controllers/resetPassword.controller");
+const upload_1 = __importDefault(require("../middlewares/upload"));
+exports.router = (0, express_1.Router)();
+exports.router.post('/register', (0, validate_1.validate)(auth_schema_1.registerSchema), user_controller_1.register);
+exports.router.post('/login', (0, validate_1.validate)(auth_schema_1.loginSchema), user_controller_1.login);
+exports.router.post('/forgot-password', (0, validate_1.validate)(auth_schema_1.forgotPasswordSchema), forgotPassword_controller_1.forgotPassword);
+exports.router.post("/reset-passwordPage/:token", (0, validate_1.validate)(auth_schema_1.resetPasswordSchema), resetPassword_controller_1.resetPassword);
+exports.router.get("/profile", auth_1.auth, user_1.isUser, user_controller_1.getProfile);
+exports.router.put("/updateProfile", auth_1.auth, user_1.isUser, upload_1.default.single("avatar"), user_controller_1.updateProfile);
+exports.router.get('/celender', auth_1.auth, user_controller_1.getUserCalendar);
+exports.default = exports.router;

@@ -23,7 +23,7 @@ router.post("/reset-passwordPage/:token", validate(resetPasswordSchema), resetPa
 
 router.get("/profile", auth, isUser, getProfile);
 router.put("/updateProfile", auth , isUser,upload.single("avatar"), updateProfile);
-router.get('/celender', auth , getUserCalendar);
+router.get('/calendar', auth , isUser, getUserCalendar);
   
 
 

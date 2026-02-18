@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middlewares/auth");
+const admin_1 = require("../middlewares/admin");
+const admin_contest_controller_1 = require("../controllers/admin/admin.contest.controller");
+const adminContestRoute = (0, express_1.Router)();
+adminContestRoute.post('/createContest', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.createContest);
+adminContestRoute.put('/updateContest/:id', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.updateContest);
+adminContestRoute.delete('/deleteContest/:id', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.deleteConById);
+adminContestRoute.delete('/deleteAllContest', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.deleteAllContest);
+adminContestRoute.get('/getAllContestByadmin', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.getAllConByAdmin);
+adminContestRoute.get('/getContestByIdByAdmin/:id', auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.getById);
+adminContestRoute.post("/contest/:contestId/problems", auth_1.auth, admin_1.isAdmin, admin_contest_controller_1.addProblemsToContest);
+exports.default = adminContestRoute;

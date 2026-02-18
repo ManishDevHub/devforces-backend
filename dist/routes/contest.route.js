@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middlewares/auth");
+const user_1 = require("../middlewares/user");
+const contest_controller_1 = require("../controllers/contest.controller");
+const contestRoute = (0, express_1.Router)();
+contestRoute.get('/contest/allcontest', auth_1.auth, user_1.isUser, contest_controller_1.getAllContest);
+contestRoute.get('/contest/upcomming', auth_1.auth, user_1.isUser, contest_controller_1.getUpcommingContest);
+contestRoute.get('/contest/live', auth_1.auth, user_1.isUser, contest_controller_1.getLiveContest);
+contestRoute.get('/contest/past', auth_1.auth, user_1.isUser, contest_controller_1.getPastContest);
+contestRoute.get('/contest/type/:type', auth_1.auth, user_1.isUser, contest_controller_1.getContestByType);
+contestRoute.get('/contest/:contestId', auth_1.auth, user_1.isUser, contest_controller_1.getContestDetails);
+contestRoute.post('/contest/:contestId/join', auth_1.auth, user_1.isUser, contest_controller_1.joinContest);
+exports.default = contestRoute;

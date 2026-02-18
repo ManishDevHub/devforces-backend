@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.ChatMessageScalarFieldEnum = exports.ContestSubmissionScalarFieldEnum = exports.ContestRegistrationScalarFieldEnum = exports.ContestProblemScalarFieldEnum = exports.ContestScalarFieldEnum = exports.ActivityScalarFieldEnum = exports.SubmissionScalarFieldEnum = exports.ProblemScalarFieldEnum = exports.OTPScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 /**
  * Prisma Errors
@@ -72,12 +72,12 @@ exports.Sql = runtime.Sql;
 exports.Decimal = runtime.Decimal;
 exports.getExtensionContext = runtime.Extensions.getExtensionContext;
 /**
- * Prisma Client JS version: 7.1.0
- * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
+ * Prisma Client JS version: 7.3.0
+ * Query Engine version: 9d6ad21cbbceab97458517b147a6a09ff43aa735
  */
 exports.prismaVersion = {
-    client: "7.1.0",
-    engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
+    client: "7.3.0",
+    engine: "9d6ad21cbbceab97458517b147a6a09ff43aa735"
 };
 exports.NullTypes = {
     DbNull: runtime.NullTypes.DbNull,
@@ -103,7 +103,16 @@ exports.JsonNull = runtime.JsonNull;
  */
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
-    User: 'User'
+    User: 'User',
+    OTP: 'OTP',
+    Problem: 'Problem',
+    Submission: 'Submission',
+    Activity: 'Activity',
+    Contest: 'Contest',
+    ContestProblem: 'ContestProblem',
+    ContestRegistration: 'ContestRegistration',
+    ContestSubmission: 'ContestSubmission',
+    ChatMessage: 'ChatMessage'
 };
 /**
  * Enums
@@ -116,13 +125,102 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
 });
 exports.UserScalarFieldEnum = {
     id: 'id',
-    email: 'email',
     name: 'name',
-    createdAt: 'createdAt'
+    email: 'email',
+    password: 'password',
+    role: 'role',
+    avatar: 'avatar',
+    avatarPublicId: 'avatarPublicId',
+    bio: 'bio',
+    resetToken: 'resetToken',
+    resetTokenExpires: 'resetTokenExpires',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.OTPScalarFieldEnum = {
+    id: 'id',
+    otp: 'otp',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.ProblemScalarFieldEnum = {
+    id: 'id',
+    title: 'title',
+    description: 'description',
+    difficulty: 'difficulty',
+    examples: 'examples',
+    constraints: 'constraints',
+    type: 'type',
+    createdAt: 'createdAt',
+    createdBy: 'createdBy'
+};
+exports.SubmissionScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    problemId: 'problemId',
+    code: 'code',
+    language: 'language',
+    status: 'status',
+    executionMs: 'executionMs',
+    createdAt: 'createdAt',
+    score: 'score',
+    feedback: 'feedback'
+};
+exports.ActivityScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    date: 'date',
+    count: 'count'
+};
+exports.ContestScalarFieldEnum = {
+    id: 'id',
+    title: 'title',
+    type: 'type',
+    startTime: 'startTime',
+    endTime: 'endTime',
+    status: 'status',
+    createdAt: 'createdAt',
+    createdBy: 'createdBy',
+    difficultycon: 'difficultycon'
+};
+exports.ContestProblemScalarFieldEnum = {
+    id: 'id',
+    contestId: 'contestId',
+    problemId: 'problemId'
+};
+exports.ContestRegistrationScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    contestId: 'contestId'
+};
+exports.ContestSubmissionScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    contestId: 'contestId',
+    problemId: 'problemId',
+    code: 'code',
+    language: 'language',
+    status: 'status',
+    executionMs: 'executionMs',
+    createdAt: 'createdAt',
+    score: 'score',
+    feedback: 'feedback'
+};
+exports.ChatMessageScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    message: 'message',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
 };
 exports.SortOrder = {
     asc: 'asc',
     desc: 'desc'
+};
+exports.NullableJsonNullValueInput = {
+    DbNull: exports.DbNull,
+    JsonNull: exports.JsonNull
 };
 exports.QueryMode = {
     default: 'default',
@@ -131,5 +229,10 @@ exports.QueryMode = {
 exports.NullsOrder = {
     first: 'first',
     last: 'last'
+};
+exports.JsonNullValueFilter = {
+    DbNull: exports.DbNull,
+    JsonNull: exports.JsonNull,
+    AnyNull: exports.AnyNull
 };
 exports.defineExtension = runtime.Extensions.defineExtension;

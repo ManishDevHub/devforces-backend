@@ -123,6 +123,7 @@ model Problem {
   examples    Json?
   constraints String?
   type        ProblemType
+  points      Int        @default(0)
   createdAt   DateTime   @default(now())
 
   createdBy String

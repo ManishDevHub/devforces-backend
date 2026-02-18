@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middlewares/auth");
+const admin_1 = require("../middlewares/admin");
+const admin_problem_controller_1 = require("../controllers/admin/admin.problem.controller");
+const createProbelmRoute = (0, express_1.Router)();
+createProbelmRoute.post('/problem/createProblem', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.createProblem);
+createProbelmRoute.get('/problem/allProblem', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.getAllProblem);
+createProbelmRoute.get('/problem/:id', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.getProblemById);
+createProbelmRoute.put('/problem/:id', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.updateProblem);
+createProbelmRoute.delete('/problem/:id', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.deleteById);
+createProbelmRoute.delete('/problem/deleteAll', auth_1.auth, admin_1.isAdmin, admin_problem_controller_1.deleteAllProblem);
+exports.default = createProbelmRoute;

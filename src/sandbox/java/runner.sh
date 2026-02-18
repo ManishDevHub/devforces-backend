@@ -1,3 +1,3 @@
 #!/bin/sh
-javac Main.java || exit 1
-java Main
+javac Solution.java Runner.java || exit 1
+java Runner

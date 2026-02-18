@@ -80,9 +80,9 @@ export const updateContest = async (req: Request, res: Response) => {
 export const deleteConById = async ( req: Request, res: Response) =>{
     try{
 
-        const constestId = Number( req.params.id);
+        const contestId = Number( req.params.id);
     const deleteCon = await prisma.contest.delete({
-        where:{ id: constestId}
+        where:{ id: contestId}
     })
 
     if(!deleteCon){

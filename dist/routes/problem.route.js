@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const problem_controller_1 = require("../controllers/problem.controller");
+const auth_1 = require("../middlewares/auth");
+const user_1 = require("../middlewares/user");
+const hint_controller_1 = require("../controllers/hint.controller");
+const problemRoute = (0, express_1.Router)();
+problemRoute.get('/problem/problems', auth_1.auth, user_1.isUser, problem_controller_1.getAllProblems);
+problemRoute.get('/problem/:problemId', auth_1.auth, user_1.isUser, problem_controller_1.getSingleProblem);
+problemRoute.get('/problem/:problemId/hints', auth_1.auth, user_1.isUser, hint_controller_1.getProblemHints);
+problemRoute.get('/problem/:problemId/solution', auth_1.auth, user_1.isUser, hint_controller_1.getProblemSolution);
+problemRoute.get('/problem/solved', auth_1.auth, user_1.isUser, problem_controller_1.getSolveProblem);
+problemRoute.get('/problem/unsolved', auth_1.auth, user_1.isUser, problem_controller_1.getUnsolvedProblem);
+problemRoute.get('/problem/search', auth_1.auth, user_1.isUser, problem_controller_1.searchProblem);
+exports.default = problemRoute;

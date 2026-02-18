@@ -1,59 +1,191 @@
+import { execFile } from "child_process";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { promisify } from "util";
 
-import fs from 'fs'
-import path, { resolve } from 'path'
-import { exec } from 'child_process'
-import { v4 as uuid } from 'uuid'
+import { Language } from "../generated/prisma/enums";
 
-export const runDocker = ({
-    language,
-    code ,
-    tests
-}:{
-    language:  "node" | "python" | "java",
-    code: string,
-    tests: any
-}) : Promise<any> =>{
-    return new Promise(( resolve , reject) => {
-        const id = uuid();
-        const dir = path.join("/tem", id)
+const execFileAsync = promisify(execFile);
 
-        fs.mkdirSync(dir);
+export interface SandboxTestCase {
+  input: any;
+  expected: string;
+}
 
-        fs.writeFileSync(`${dir}/tests.json`, JSON.stringify(tests));
+export interface SandboxResultRow {
+  input: string;
+  expected: string;
+  output?: string;
+  passed: boolean;
+  error?: string;
+}
 
-        if( language === "node"){
-            fs.writeFileSync(`${dir}/user_code.js`, code);
-        }
+export interface SandboxTestResult {
+  status: "PASSED" | "FAILED" | "ERROR";
+  passed: number;
+  failed: number;
+  total: number;
+  executionMs: number;
+  results: SandboxResultRow[];
+  error?: string;
+}
 
-        if(language === "python"){
-            fs.writeFileSync(`${dir}/main.py`, code);
-        }
-        if( language === "java"){
-            fs.writeFileSync(`${dir}/Main.java`, code);
-        }
+interface RunDockerParams {
+  language: Language;
+  code: string;
+  tests: SandboxTestCase[];
+  entryFunction?: string;
+}
 
-        const image = 
-        language === "node"? "sandbox-node": language === "python"?"sandbox-python":"sandbox-java";
+const IMAGE_BY_LANGUAGE: Record<Language, string> = {
+  node: "sandbox-node",
+  python: "sandbox-python",
+  java: "sandbox-java",
+};
 
-        const cmd = ` docker run --rm -v ${dir}:/app ${image}`;
+const CODE_FILE_BY_LANGUAGE: Record<Language, string> = {
+  node: "user_code.js",
+  python: "main.py",
+  java: "Solution.java",
+};
 
-        exec(cmd, { timeout: 5000 }, (err, stdout, stderr) => {
-           if (err) {
-    return resolve({
-      status: "FAILED",
-      error: stderr || err.message,
-    });
+const getSandboxTemplateDir = (language: Language) => {
+  const srcPath = path.resolve(process.cwd(), "src", "sandbox", language);
+  if (fs.existsSync(srcPath)) {
+    return srcPath;
+  }
+
+  const distPath = path.resolve(process.cwd(), "dist", "sandbox", language);
+  if (fs.existsSync(distPath)) {
+    return distPath;
+  }
+
+  throw new Error(`Sandbox template not found for language: ${language}`);
+};
+
+const copyRunnerAssets = (language: Language, workspaceDir: string) => {
+  const templateDir = getSandboxTemplateDir(language);
+
+  const filesByLanguage: Record<Language, string[]> = {
+    node: ["runner.js"],
+    python: ["runner.py"],
+    java: ["Runner.java", "runner.sh"],
+  };
+
+  for (const filename of filesByLanguage[language]) {
+    const sourceFile = path.join(templateDir, filename);
+    const targetFile = path.join(workspaceDir, filename);
+    fs.copyFileSync(sourceFile, targetFile);
+  }
+};
+
+const safeParseSandboxOutput = (
+  stdout: string,
+  stderr: string,
+  fallbackExecutionMs: number
+): SandboxTestResult => {
+  const raw = stdout.trim();
+
+  if (!raw) {
+    return {
+      status: "ERROR",
+      passed: 0,
+      failed: 0,
+      total: 0,
+      executionMs: fallbackExecutionMs,
+      results: [],
+      error: stderr || "Sandbox produced no output",
+    };
   }
 
   try {
-    resolve(JSON.parse(stdout));
+    const parsed = JSON.parse(raw) as Partial<SandboxTestResult>;
+    return {
+      status: parsed.status === "PASSED" || parsed.status === "FAILED" ? parsed.status : "ERROR",
+      passed: Number(parsed.passed || 0),
+      failed: Number(parsed.failed || 0),
+      total: Number(parsed.total || 0),
+      executionMs: Number(parsed.executionMs || fallbackExecutionMs),
+      results: Array.isArray(parsed.results) ? parsed.results : [],
+      error: parsed.error,
+    };
   } catch {
-    resolve({
-      status: "FAILED",
-      error: "Invalid JSON output",
-      raw: stdout,
-    });
+    return {
+      status: "ERROR",
+      passed: 0,
+      failed: 0,
+      total: 0,
+      executionMs: fallbackExecutionMs,
+      results: [],
+      error: stderr || "Invalid JSON output from sandbox",
+    };
   }
-});
-    })
-}
+};
+
+export const runDocker = async ({
+  language,
+  code,
+  tests,
+  entryFunction = "solve",
+}: RunDockerParams): Promise<SandboxTestResult> => {
+  const workspaceDir = fs.mkdtempSync(path.join(os.tmpdir(), "devforces-submission-"));
+  const start = Date.now();
+
+  try {
+    copyRunnerAssets(language, workspaceDir);
+
+    fs.writeFileSync(path.join(workspaceDir, CODE_FILE_BY_LANGUAGE[language]), code, "utf-8");
+    fs.writeFileSync(
+      path.join(workspaceDir, "tests.json"),
+      JSON.stringify({ entryFunction, tests }),
+      "utf-8"
+    );
+
+    if (language === "node") {
+      fs.writeFileSync(
+        path.join(workspaceDir, "package.json"),
+        JSON.stringify({ type: "commonjs" }),
+        "utf-8"
+      );
+    }
+
+    const dockerMountPath =
+      process.platform === "win32" ? workspaceDir.replace(/\\/g, "/") : workspaceDir;
+
+    const args = [
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "--memory",
+      "256m",
+      "--cpus",
+      "1",
+      "--pids-limit",
+      "128",
+      "-v",
+      `${dockerMountPath}:/app`,
+      IMAGE_BY_LANGUAGE[language],
+    ];
+
+    const { stdout, stderr } = await execFileAsync("docker", args, {
+      timeout: 12_000,
+    });
+
+    return safeParseSandboxOutput(stdout, stderr, Date.now() - start);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Sandbox execution failed";
+    return {
+      status: "ERROR",
+      passed: 0,
+      failed: tests.length,
+      total: tests.length,
+      executionMs: Date.now() - start,
+      results: [],
+      error: message,
+    };
+  } finally {
+    fs.rmSync(workspaceDir, { recursive: true, force: true });
+  }
+};

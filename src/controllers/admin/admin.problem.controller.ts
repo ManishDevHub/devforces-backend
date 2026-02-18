@@ -20,6 +20,7 @@ export const createProblem = async ( req: AuthRequest , res: Response) => {
                 examples,
                 constraints,
                 createdBy,
+                points: Number(req.body.points || 100), // Default to 100 if not provided
             },
         })
 
@@ -50,7 +51,7 @@ export const getAllProblem = async ( req: AuthRequest, res: Response) => {
         res.status(200).json(problems);
 
     }catch(error){
-        res.status(500).json({message: " Failed to fetch Probelms"})
+        res.status(500).json({message: " Failed to fetch Problems"})
     }
 }
 
@@ -79,7 +80,7 @@ export const updateProblem = async ( req: AuthRequest , res: Response) =>{
     try{
         const createdBy = req.user.id
         const { title , description, difficulty, examples , constraints} = req.body;
-        const id = Number(req.params.id)
+        const id = Number(req.params.id) // Correctly get problem ID from params
 
         const updateProblem = await prisma.problem.update({
             where: {id},
@@ -89,6 +90,7 @@ export const updateProblem = async ( req: AuthRequest , res: Response) =>{
                 difficulty,
                 examples,
                 constraints,
+                points: req.body.points ? Number(req.body.points) : undefined,
                 createdBy
             }
         })
@@ -129,6 +131,6 @@ export const deleteAllProblem = async (req: Request, res: Response) =>{
         res.json(" All problem deleted successfully")
 
     }catch(error){
-        res.status(500).json({ message: " failed to delete all probem"});
+        res.status(500).json({ message: " failed to delete all problems"});
     }
 }

@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middlewares/auth");
+const problem_controller_1 = require("../controllers/problem.controller");
+const contest_controller_1 = require("../controllers/contest.controller");
+const submission_controller_1 = require("../controllers/submission.controller");
+const user_1 = require("../middlewares/user");
+const submissionRoute = (0, express_1.Router)();
+submissionRoute.post("/problems/:problemId/submit", auth_1.auth, user_1.isUser, problem_controller_1.submissionProblem);
+submissionRoute.post("/contests/:contestId/problems/:problemId/submit", auth_1.auth, user_1.isUser, contest_controller_1.submissionContestProblem);
+submissionRoute.get("/submissions/:submissionId", auth_1.auth, user_1.isUser, submission_controller_1.getSubmissionResult);
+exports.default = submissionRoute;

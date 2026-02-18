@@ -21,7 +21,7 @@ const existingUser = await prisma.user.findUnique({
 
 if(existingUser){
   return res.status(400).json({
-    message: " Email alrady exists"
+    message: " Email already exists"
   })
 }
 
@@ -56,7 +56,7 @@ const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma.user.findUnique({ where: { email }})
 
     if(! user){
-      return res.status(400).json({mess: "Invalid email or Password"})
+      return res.status(400).json({message: "Invalid email or Password"})
     }
 
     const isMatch = await bcrypt.compare(password , user.password);
@@ -94,23 +94,38 @@ res.status(200).json({
     const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
-      where:{ id: userId},
+      where: { id: userId },
       select: {
-         id: true,
-         name: true,
-         email: true,
-         avatar: true,
-         bio: true,
-         createdAt: true,
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        bio: true,
+        createdAt: true,
+        role: true,
+      },
+    });
 
-      }
-    })
-
-    if(!user){
-      return res.status(400).json({ message: " User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    // Calculate stats
+    const solvedCount = await prisma.submission.groupBy({
+      by: ["problemId"],
+      where: {
+        userId,
+        status: "ACCEPTED",
+      },
+    });
+    
+    const totalProblems = await prisma.problem.count();
+
+    res.json({
+        ...user,
+        solvedProblems: solvedCount.length,
+        totalProblems,
+    });
 
   } catch(error){
     console.error(error);
@@ -121,39 +136,51 @@ res.status(200).json({
 
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
-  console.log("BODY =>", req.body);
-  console.log("FILE =>", req.file);
-
   try {
     const userId = req.user.id;
-    const { name, bio } = req.body;
-
-    if (!req.file) {
-      return res.status(400).json({ message: "Avatar file missing" });
-    }
+    const name =
+      typeof req.body.name === "string" ? req.body.name.trim() : undefined;
+    const bio = typeof req.body.bio === "string" ? req.body.bio.trim() : undefined;
 
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { avatarPublicId: true },
     });
 
-    if (existingUser?.avatarPublicId) {
-      await cloudinary.uploader.destroy(existingUser.avatarPublicId);
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const uploaded = await uploadCloToBinary(
-      req.file.buffer,
-      "user_avatars",
-      `user_${userId}`
-    );
+    let avatarUpdate:
+      | {
+          avatar: string;
+          avatarPublicId: string;
+        }
+      | undefined;
+
+    if (req.file) {
+      if (existingUser.avatarPublicId) {
+        await cloudinary.uploader.destroy(existingUser.avatarPublicId);
+      }
+
+      const uploaded = await uploadCloToBinary(
+        req.file.buffer,
+        "user_avatars",
+        `user_${userId}`
+      );
+
+      avatarUpdate = {
+        avatar: uploaded.url,
+        avatarPublicId: uploaded.publicId,
+      };
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name,
-        bio,
-        avatar: uploaded.url,
-        avatarPublicId: uploaded.publicId,
+        ...(name !== undefined ? { name } : {}),
+        ...(bio !== undefined ? { bio } : {}),
+        ...(avatarUpdate || {}),
       },
       select: {
         id: true,
@@ -161,6 +188,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         email: true,
         avatar: true,
         bio: true,
+        createdAt: true,
       },
     });
 
@@ -197,7 +225,7 @@ export const getUserCalendar = async ( req: AuthRequest, res: Response) =>{
     res.json(activity);
 
   }catch( error) {
-    console.error(" Celender error", error)
+    console.error(" Calendar error", error)
      res.status(500).json({ message: " Server error"});
   }
 }

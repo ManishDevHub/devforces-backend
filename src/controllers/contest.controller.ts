@@ -4,7 +4,7 @@ import { AuthRequest } from "../middlewares/auth";
 import prisma from "../config/prisma";
 
 import { submissionQueue } from "../queues/submission.queue";
-import { ContestType, Status } from "../generated/prisma/enums";
+import { ContestType, Language, Status } from "../generated/prisma/enums";
 
 export const getAllContest = async ( req: AuthRequest, res: Response) =>{
     try{
@@ -45,7 +45,7 @@ export const getAllContest = async ( req: AuthRequest, res: Response) =>{
 }
 
 
-export const getUpcommingContest = async ( req: Request, res: Response) => {
+export const getUpcomingContest = async ( req: Request, res: Response) => {
     try{
 
         const now = new Date();
@@ -55,13 +55,13 @@ export const getUpcommingContest = async ( req: Request, res: Response) => {
         })
 
         if(!upcomCon){
-            return res.status(404).json({ message: " UpcommingContest not Found"});
+            return res.status(404).json({ message: " UpcomingContest not Found"});
         }
 
         res.json(upcomCon);
 
     }catch(error){
-        res.status(500).json({messahe: "Failed to Fetch UpcommingContest "});
+        res.status(500).json({message: "Failed to Fetch UpcomingContest "});
     }
 }
 
@@ -225,10 +225,15 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
         const problemId = Number(req.params.problemId);
         const contestId = Number(req.params.contestId);
         const userId = req.user.id;
-        const { code , language} = req.body;
+        const code = typeof req.body.code === "string" ? req.body.code : "";
+        const language = req.body.language as Language;
 
-        if( !code || !language){
+        if( !code.trim() || !language){
             return res.status(401).json({ message: " code and language required"});
+        }
+
+        if (!["node", "python", "java"].includes(language)) {
+            return res.status(400).json({ message: "Unsupported language. Use node, python, or java." });
         }
 
         const contest = await prisma.contest.findUnique({
@@ -257,26 +262,30 @@ export const submissionContestProblem = async ( req:AuthRequest , res: Response)
             },
         })
 
+        if (!contestProblem) {
+            return res.status(400).json({ message: "Problem not found in this contest" });
+        }
+
         const submission = await prisma.contestSubmission.create({
             data:{
                 userId,
                 problemId,
                 contestId , 
                 code ,
-                language,
+                language: language as Language,
                 status: Status.PENDING,
 
             }
         })
 
         await submissionQueue.add("evaluate-submission" , {
-            submission: submission.id,
+            submissionId: submission.id,
             contestId,
             type:"CONTEST",
         })
 
     return res.status(201).json({
-            message: " contest submission resived",
+            message: " contest submission received",
             submissionId: submission.id,
         })
 

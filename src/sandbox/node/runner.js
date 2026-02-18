@@ -1,44 +1,103 @@
+const fs = require("fs");
+const vm = require("vm");
 
-import fs from 'fs'
-import {userCode} from './user_code.js'
+const testsPayload = JSON.parse(fs.readFileSync("./tests.json", "utf-8"));
+const userCode = fs.readFileSync("./user_code.js", "utf-8");
+const entryFunction = testsPayload.entryFunction || "solve";
+const tests = Array.isArray(testsPayload.tests) ? testsPayload.tests : [];
 
+const normalize = (value) => {
+  if (typeof value === "string") return value.trim();
+  if (value === undefined || value === null) return "";
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+};
 
+let solveFn = null;
 
-const tests = JSON.parse(fs.readFileSync("./tests.json", "utf-8"));
+try {
+  const context = {
+    module: { exports: {} },
+    exports: {},
+    require,
+    console: {
+      log: () => {},
+      error: () => {},
+      warn: () => {},
+    },
+    setTimeout,
+    clearTimeout,
+  };
 
-const passed = 0;
-const failed = 0;
-const result = [];
+  vm.createContext(context);
+  vm.runInContext(userCode, context, { timeout: 1500 });
 
-for( const test of tests.tests){
-    try{
+  if (typeof context.module.exports === "function") {
+    solveFn = context.module.exports;
+  } else if (
+    context.module.exports &&
+    typeof context.module.exports[entryFunction] === "function"
+  ) {
+    solveFn = context.module.exports[entryFunction];
+  } else if (typeof context[entryFunction] === "function") {
+    solveFn = context[entryFunction];
+  }
 
-        const fn = userCode[test.function];
-        const output = fn(test.input)
-        const ok = JSON.stringify(output) === JSON.stringify(Text.expected);
+  if (!solveFn) {
+    throw new Error(
+      `Function "${entryFunction}" not found. Export it or define it in global scope.`
+    );
+  }
 
-        ok ? passed++: failed++;
+  let passed = 0;
+  let failed = 0;
+  const results = [];
+  const start = Date.now();
 
-        result.push({
-            input: test.input,
-            expected: test.expected,
-            output,
-            passed: ok,
-        })
+  for (const test of tests) {
+    try {
+      const output = solveFn(test.input);
+      const ok = normalize(output) === normalize(test.expected);
+      if (ok) passed += 1;
+      if (!ok) failed += 1;
 
-    }catch(err){
-        failed++,
-        result.push({
-            input: test.input,
-            error: err.message,
-            passed: false
-        })
+      results.push({
+        input: test.input,
+        expected: test.expected,
+        output,
+        passed: ok,
+      });
+    } catch (error) {
+      failed += 1;
+      results.push({
+        input: test.input,
+        expected: test.expected,
+        passed: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
-}
+  }
 
-console.log(JSON.stringify({
-    status: failed === 0? "PASSED ":"FAILED",
-    passed,
-    failed,
-    result,
-}))
+  console.log(
+    JSON.stringify({
+      status: failed === 0 ? "PASSED" : "FAILED",
+      passed,
+      failed,
+      total: tests.length,
+      executionMs: Date.now() - start,
+      results,
+    })
+  );
+} catch (error) {
+  console.log(
+    JSON.stringify({
+      status: "ERROR",
+      passed: 0,
+      failed: tests.length || 0,
+      total: tests.length || 0,
+      executionMs: 0,
+      results: [],
+      error: error instanceof Error ? error.message : String(error),
+    })
+  );
+}

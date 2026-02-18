@@ -1,19 +1,20 @@
+import "dotenv/config";
 import { WebSocketServer, WebSocket } from "ws";
 import Redis from "ioredis";
 import prisma from "../config/prisma";
-import { email } from "zod";
 
 
-const wss = new WebSocketServer({ port: 8080 });
-console.log(" Websocket running on port 8080");
+const port = Number(process.env.WS_PORT) || 8080;
+const wss = new WebSocketServer({ port });
+console.log(` Websocket running on port ${port}`);
 
 const redisPub = new Redis({
-    host: "127.0.0.1",
-  port: 6379,
+  host: process.env.REDIS_HOST || "127.0.0.1",
+  port: Number(process.env.REDIS_PORT) || 6379,
 });
-const redisSub =  new Redis({
-    host: "127.0.0.1",
-  port: 6379,
+const redisSub = new Redis({
+  host: process.env.REDIS_HOST || "127.0.0.1",
+  port: Number(process.env.REDIS_PORT) || 6379,
 });
 redisPub.on("connect", () => {
   console.log("Redis PUB connected");
@@ -45,30 +46,36 @@ redisSub.on("message" , ( channel , message) => {
 
 wss.on("connection",  async (socket: WebSocket) => {
   console.log("User connected");
+  try {
+      allUsers.push(socket);
 
-  allUsers.push(socket);
+      const history = await prisma.chatMessage.findMany({
+        orderBy: { createdAt: "asc" },
+        take: 50,
+        include: {
+            user: {
+            select: {
+                id: true,
+                name: true,
+            },
+            },
+        },
+      });
 
- const history = await prisma.chatMessage.findMany({
-  orderBy: { createdAt: "asc" },
-  take: 50,
-  include: {
-    user: {
-      select: {
-        id: true,
-        name: true,
-      },
-    },
-  },
-});
-
-  history.forEach( (msg:any) => {
-   socket.send(JSON.stringify({
-      type: "history",
-      data: msg,
-   }))
-  })
+      history.forEach( (msg:any) => {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: "history",
+                data: msg,
+            }));
+        }
+      });
+  } catch (err) {
+      console.error("Connection handling error:", err);
+  }
 
   socket.on("message",  async (e) => {
+      // ... existing message handling ...
 
    const data = JSON.parse(e.toString())
 

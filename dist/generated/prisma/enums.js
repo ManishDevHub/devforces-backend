@@ -9,3 +9,49 @@
 * 🟢 You can import this file directly.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContestStatus = exports.ContestType = exports.Status = exports.DifficultyContest = exports.Difficulty = exports.Role = exports.Language = exports.ProblemType = void 0;
+exports.ProblemType = {
+    AUTH_SECURITY: 'AUTH_SECURITY',
+    API_BACKEND: 'API_BACKEND',
+    BOT_AUTOMATION: 'BOT_AUTOMATION',
+    APP_BACKEND: 'APP_BACKEND',
+    SYSTEM_DESIGN: 'SYSTEM_DESIGN'
+};
+exports.Language = {
+    node: 'node',
+    python: 'python',
+    java: 'java'
+};
+exports.Role = {
+    USER: 'USER',
+    ADMIN: 'ADMIN'
+};
+exports.Difficulty = {
+    EASY: 'EASY',
+    MEDIUM: 'MEDIUM',
+    HARD: 'HARD'
+};
+exports.DifficultyContest = {
+    EASY: 'EASY',
+    MEDIUM: 'MEDIUM',
+    HARD: 'HARD'
+};
+exports.Status = {
+    PENDING: 'PENDING',
+    RUNNING: 'RUNNING',
+    ACCEPTED: 'ACCEPTED',
+    WRONG_ANSWER: 'WRONG_ANSWER',
+    RUNTIME_ERROR: 'RUNTIME_ERROR',
+    TIME_LIMIT: 'TIME_LIMIT',
+    COMPILATION_ERROR: 'COMPILATION_ERROR'
+};
+exports.ContestType = {
+    WEEKLY: 'WEEKLY',
+    BIWEEKLY: 'BIWEEKLY',
+    MONTHLY: 'MONTHLY'
+};
+exports.ContestStatus = {
+    UPCOMING: 'UPCOMING',
+    LIVE: 'LIVE',
+    COMPLETED: 'COMPLETED'
+};
