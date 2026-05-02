@@ -28,6 +28,21 @@ app.use(
 
 app.use(express.json());
 
+
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+
+app.get("/health/live", (req, res) => {
+  res.status(200).send("alive");
+});
+
 // User routes
 app.use("/api/user", router);
 app.use("/api/user", problemRoute);
@@ -40,6 +55,8 @@ app.use("/api/user", leaderboardRoute);
 app.use("/api/admin", AdminRouter);
 app.use("/api/admin", createProbelmRoute);
 app.use("/api/admin", adminContestRoute);
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
