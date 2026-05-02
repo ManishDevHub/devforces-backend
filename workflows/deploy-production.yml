@@ -1,0 +1,32 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2 (Production)
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd backend
+
+            echo "Pull latest code"
+            git pull origin main
+
+            echo "Install deps"
+            npm install
+
+            echo "Build app"
+            npm run build
+
+            echo "Restart app"
+            pm2 restart all
