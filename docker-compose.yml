@@ -9,30 +9,30 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - ./devforces-backend/.env
+      - ./backend/.env
     depends_on:
       - redis
 
   websocket:
     build:
-      context: ./devforces-backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: websocket-server
     command: node dist/ws/ws.server.js
     ports:
       - "8080:8080"
     env_file:
-      - ./devforces-backend/.env
+      - ./backend/.env
     depends_on:
       - redis
 
   worker:
     build:
-      context: ./devforces-backend
+      context: ./backend
       dockerfile: Dockerfile.worker
     container_name: worker
     env_file:
-      - ./devforces-backend/.env
+      - ./backend/.env
     depends_on:
       - redis
 
