@@ -9,7 +9,7 @@ const getGeminiModel = () => {
 };
 
 export const callAI = async (prompt: string, systemPrompt?: string): Promise<string | null> => {
-  // 1. Try Groq (User preference)
+ 
   const groqKey = process.env.GROQ_API_KEY;
   if (groqKey) {
     try {
